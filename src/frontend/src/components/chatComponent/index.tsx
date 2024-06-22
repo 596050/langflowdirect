@@ -110,14 +110,14 @@ export default function FlowToolbar(): JSX.Element {
         >
           <div className="flex">
             <div className="flex h-full w-full gap-1 rounded-sm transition-all">
-              {hasIO ? (
+            {hasIO ? (
                 <IOModal open={open} setOpen={setOpen} disable={!hasIO}>
                   <div className="relative inline-flex w-full items-center justify-center gap-1 px-5 py-3 text-sm font-semibold transition-all duration-500 ease-in-out hover:bg-hover">
                     <ForwardedIconComponent
                       name="BotMessageSquareIcon"
                       className={"h-5 w-5 transition-all"}
                     />
-                    Playground
+                    Design Problem
                   </div>
                 </IOModal>
               ) : (
@@ -128,11 +128,11 @@ export default function FlowToolbar(): JSX.Element {
                     name="BotMessageSquareIcon"
                     className={"h-5 w-5 transition-all"}
                   />
-                  Playground
+                  Design Problem
                 </div>
               )}
             </div>
-            <div>
+            {/* <div>
               <Separator orientation="vertical" />
             </div>
             <div className="flex cursor-pointer items-center gap-2">
@@ -169,7 +169,7 @@ export default function FlowToolbar(): JSX.Element {
               >
                 {ModalMemo}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </Transition>

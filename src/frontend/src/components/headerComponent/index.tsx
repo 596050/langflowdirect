@@ -87,7 +87,7 @@ export default function Header(): JSX.Element {
     <div className="header-arrangement">
       <div className="header-start-display lg:w-[407px]">
         <Link to="/all" className="cursor-pointer" onClick={checkForChanges}>
-          <span className="ml-4 text-2xl">⛓️</span>
+          {/* <span className="ml-4 text-2xl">⛓️</span> */}
         </Link>
         {showArrowReturnIcon && (
           <Button
@@ -104,7 +104,7 @@ export default function Header(): JSX.Element {
         <MenuBar />
       </div>
 
-      <div className="round-button-div">
+      {/* <div className="round-button-div">
         <Link to="/">
           <Button
             className="gap-2"
@@ -136,10 +136,10 @@ export default function Header(): JSX.Element {
             </Button>
           </Link>
         )}
-      </div>
+      </div> */}
       <div className="header-end-division lg:w-[407px]">
         <div className="header-end-display">
-          <a
+          {/* <a
             href="https://github.com/langflow-ai/langflow"
             target="_blank"
             rel="noreferrer"
@@ -164,7 +164,7 @@ export default function Header(): JSX.Element {
             className="text-muted-foreground"
           >
             <FaDiscord className="side-bar-button-size" />
-          </a>
+          </a> */}
 
           <Separator orientation="vertical" />
           <button
