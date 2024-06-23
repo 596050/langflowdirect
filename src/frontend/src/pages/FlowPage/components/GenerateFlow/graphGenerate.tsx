@@ -71,6 +71,17 @@ const MermaidView: FC<MermaidViewProps> = ({
     const mermaidEdges = (parser.getEdges() as IMermaidEdgeDefinition[]) || [],
       mermaidNodes = (parser.getVertices() as IMermaidNodeDefinition[]) || [];
 
+    //   return {
+    //     title: parser.getDiagramTitle(),
+    //     accTitle: parser.getAccTitle(),
+    //     edges: parser.getEdges(),
+    //     vertices: parser.getVertices(),
+    //     tooltip: parser.getTooltip(),
+    //     direction: parser.getDirection(),
+    //     classes: parser.getClasses(),
+    //     subGraphs: parser.getSubGraphs(),
+    //   };
+
     onMermaidDefinitionChange({
       nodes: Object.values(mermaidNodes),
       edges: mermaidEdges,

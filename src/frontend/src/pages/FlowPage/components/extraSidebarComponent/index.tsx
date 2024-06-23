@@ -26,6 +26,8 @@ import SidebarDraggableComponent from "./sideBarDraggableComponent";
 import { sortKeys } from "./utils";
 import sensitiveSort from "./utils/sensitive-sort";
 
+
+
 export default function ExtraSidebar(): JSX.Element {
   const data = useTypesStore((state) => state.data);
   const templates = useTypesStore((state) => state.templates);
@@ -248,7 +250,7 @@ export default function ExtraSidebar(): JSX.Element {
     <div className="side-bar-arrangement">
       <div className="side-bar-search-div-placement">
         <Input
-          onFocusCapture={() => handleBlur()}
+          onFocusCapture={handleBlur}
           value={search}
           type="text"
           name="search"
@@ -260,8 +262,9 @@ export default function ExtraSidebar(): JSX.Element {
             // Set search input state
             setSearch(event.target.value);
           }}
-          autocomplete="off"
-          readonly="readonly"
+          autoComplete="off"
+          // readOnly="readonly"
+          readOnly={true}
           onClick={() =>
             document?.getElementById?.("search")?.removeAttribute("readonly")
           }
@@ -325,7 +328,7 @@ export default function ExtraSidebar(): JSX.Element {
                             dataFilter[SBSectionName][SBItemName].display_name
                           }
                           side="right"
-                          key={index}
+                          key={`${SBItemName}${index}`}
                         >
                           <SidebarDraggableComponent
                             sectionName={SBSectionName as string}
@@ -360,7 +363,7 @@ export default function ExtraSidebar(): JSX.Element {
                 </DisclosureComponent>
               </>
             ) : (
-              <div key={index}></div>
+              <div key={`div${SBSectionName}${index}`}></div>
             ),
           )}{" "}
         <ParentDisclosureComponent
@@ -407,12 +410,12 @@ export default function ExtraSidebar(): JSX.Element {
                               dataFilter[SBSectionName][SBItemName].display_name
                             }
                             side="right"
-                            key={index}
+                            key={`ShadTooltip${SBItemName}${index}`}
                           >
                             <SidebarDraggableComponent
                               sectionName={SBSectionName as string}
                               apiClass={dataFilter[SBSectionName][SBItemName]}
-                              key={index}
+                              key={`SidebarDraggableComponent${SBSectionName}${index}`}
                               onDragStart={(event) =>
                                 onDragStart(event, {
                                   //split type to remove type in nodes saved with same name removing it's

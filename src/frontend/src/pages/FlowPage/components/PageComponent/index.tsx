@@ -1,7 +1,11 @@
 import _, { cloneDeep } from "lodash";
+import mermaid from "mermaid";
+import { DiagramDB, ParserDefinition } from "mermaid/dist/diagram-api/types.js";
 import {
+  FC,
   KeyboardEvent,
   MouseEvent,
+  MutableRefObject,
   useCallback,
   useEffect,
   useRef,
@@ -13,12 +17,14 @@ import ReactFlow, {
   Connection,
   Controls,
   Edge,
+  Node,
   NodeDragHandler,
   OnMove,
   OnSelectionChangeParams,
   SelectionDragHandler,
   updateEdge,
 } from "reactflow";
+import { v4 as uuidv4 } from "uuid";
 import GenericNode from "../../../../CustomNodes/GenericNode";
 import {
   INVALID_SELECTION_ERROR_ALERT,
@@ -43,13 +49,144 @@ import {
   validateSelection,
 } from "../../../../utils/reactflowUtils";
 import ConnectionLineComponent from "../ConnectionLineComponent";
+import {
+  IMermaidEdgeDefinition,
+  IMermaidNodeDefinition,
+  MermaidChartDirection,
+  MermaidParserEvent,
+} from "../GenerateFlow/models/mermaid.model";
 import SelectionMenu from "../SelectionMenuComponent";
 import getRandomName from "./utils/get-random-name";
 import isWrappedWithClass from "./utils/is-wrapped-with-class";
-import GenerateView from "../GenerateFlow/GenerateView";
 
 const nodeTypes = {
   genericNode: GenericNode,
+};
+
+const useMermaidConversion = ({
+  graphDefinition,
+}: {
+  graphDefinition: string;
+}) => {
+  const [reactflowNodes, setReactflowNodes] = useState<Node[]>([]);
+  const [reactflowEdges, setReactflowEdges] = useState<Edge[]>([]);
+  const [mermaidChartDirection, setMermaidChartDirection] =
+    useState<MermaidChartDirection>(MermaidChartDirection.TD);
+
+  const [currentGraphDefinition, setCrrentGraphDefinition] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    mermaid.initialize({
+      startOnLoad: false,
+    });
+  }, [])
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (graphDefinition !== currentGraphDefinition) {
+        (async () => {
+          await parseMermaidChart(graphDefinition);
+        })();
+
+        setCrrentGraphDefinition(graphDefinition);
+      }
+    }, 500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentGraphDefinition, graphDefinition]);
+
+  async function parseMermaidChart(graphDefinitionText: string): Promise<void> {
+    const diagram =
+      await mermaid.mermaidAPI.getDiagramFromText(graphDefinitionText);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parser = (diagram?.getParser() as ParserDefinition as any)?.yy;
+
+    const mermaidEdges = (parser.getEdges() as IMermaidEdgeDefinition[]) || [],
+      mermaidNodes = (parser.getVertices() as IMermaidNodeDefinition[]) || [];
+
+    // onMermaidDefinitionChange({
+    //   nodes: Object.values(mermaidNodes),
+    //   edges: mermaidEdges,
+    //   direction: parser.getDirection(),
+    // });
+
+    console.log('===  index.tsx [115] ===', parser);
+
+    handleMermaidDefinitionChange({
+      nodes: Object.values(mermaidNodes),
+      edges: mermaidEdges,
+      direction: parser.getDirection(),
+      title: parser.getDiagramTitle(),
+      accTitle: parser.getAccTitle(),
+      vertices: parser.getVertices(),
+      tooltip: parser.getTooltip(),
+      classes: parser.getClasses(),
+      subGraphs: parser.getSubGraphs(),
+    });
+  }
+
+
+
+  function handleMermaidDefinitionChange(event: MermaidParserEvent) {
+    console.log('===  index.tsx [131] ===', event);
+    const reactflowEdges: Edge[] = event.edges.map(
+        (mermaidEdge: IMermaidEdgeDefinition) =>
+          {
+            console.log('===  index.tsx [134] ===', mermaidEdge);
+            return ({
+            id: uuidv4(),
+            source: mermaidEdge.start,
+            target: mermaidEdge.end,
+            type: "customEdgeType",
+            markerStart: "oneOrMany",
+            markerEnd: "arrow-end",
+            style: { stroke: "#f6ab6c" },
+            elementsSelectable: true,
+            label: mermaidEdge.text,
+            dragging: true,
+            // markerEnd: {
+            //   type: MarkerType.ArrowClosed,
+            // },
+            animated: false,
+            data: {
+              label: mermaidEdge.text,
+              raw: mermaidEdge,
+            },
+          }) as Edge
+        }
+        ,
+      ),
+      reactflowNodes: Node[] = event.nodes.map(
+        (mermaidNode: IMermaidNodeDefinition, index: number) => {
+          console.log('===  index.tsx [159] ===', mermaidNode);
+          return ({
+            id: mermaidNode.id,
+            position: { x: index * 200, y: index * 200 },
+            type: "customNodeType",
+            dragHandle: ".custom-node",
+            dragging: true,
+            data: {
+              label: mermaidNode.text,
+              raw: mermaidNode,
+              layoutDirection: event.direction,
+            },
+          })
+        },
+      );
+
+    setReactflowNodes(reactflowNodes);
+    setReactflowEdges(reactflowEdges);
+    setMermaidChartDirection(event.direction);
+  }
+
+  return {
+    reactflowNodes,
+    reactflowEdges,
+    mermaidChartDirection,
+    handleMermaidDefinitionChange,
+  };
 };
 
 export default function Page({
@@ -59,6 +196,23 @@ export default function Page({
   flow: FlowType;
   view?: boolean;
 }): JSX.Element {
+  const { reactflowNodes, reactflowEdges, mermaidChartDirection } =
+  useMermaidConversion({
+    graphDefinition: `flowchart TD
+  A[Start] --> B{Is it?}
+  B -- Yes --> C[OK]
+  C --> D[Rethink]
+  D --> B
+  B -- No ----> E[End]`,
+  });
+
+// console.log(
+//   "===  index.tsx [225] ===",
+//   reactflowNodes,
+//   reactflowEdges,
+//   mermaidChartDirection,
+// );
+
   const uploadFlow = useFlowsManagerStore((state) => state.uploadFlow);
   const autoSaveCurrentFlow = useFlowsManagerStore(
     (state) => state.autoSaveCurrentFlow,
@@ -457,14 +611,16 @@ export default function Page({
     setEdges(updatedEdges);
   }
 
+  console.log('===  index.tsx [609] ===', nodes, edges, reactflowNodes, reactflowEdges, mermaidChartDirection);
+
   return (
     <div className="h-full w-full" ref={reactFlowWrapper}>
       {/* <GenerateView/> */}
       {showCanvas ? (
         <div id="react-flow-id" className="h-full w-full">
           <ReactFlow
-            nodes={nodes}
-            edges={edges}
+            nodes={reactflowNodes}
+            edges={reactflowEdges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnectMod}

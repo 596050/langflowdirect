@@ -47,7 +47,6 @@ import ParameterComponent from "./components/parameterComponent";
 
 export default function GenericNode({
   data,
-
   selected,
 }: {
   data: NodeDataType;

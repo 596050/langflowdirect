@@ -77,7 +77,9 @@ function GenerateView() {
     resetEditorLayout();
   }
 
-  console.log('===  GenerateView.tsx [80] ===', reactflowNodes);
+  console.log('===  GenerateView.tsx [80] reactflowNodes ===', reactflowNodes);
+  console.log('===  GenerateView.tsx [80] reactflowEdges ===', reactflowEdges);
+  console.log('===  GenerateView.tsx [80] mermaidChartDirection ===', mermaidChartDirection);
 
   return (
     <>
