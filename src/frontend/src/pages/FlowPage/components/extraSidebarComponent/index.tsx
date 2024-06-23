@@ -41,6 +41,7 @@ export default function ExtraSidebar(): JSX.Element {
   const setErrorData = useAlertStore((state) => state.setErrorData);
   const [dataFilter, setFilterData] = useState(data);
   const [search, setSearch] = useState("");
+
   function onDragStart(
     event: React.DragEvent<any>,
     data: { type: string; node?: APIClassType },

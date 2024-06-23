@@ -55,7 +55,7 @@ export const GenerateFlowSlide = () => {
     console.log("Message sent: ", message);
   };
 
-  console.log("===  index.tsx [32] ===", textareaRef.current);
+  // console.log("===  index.tsx [32] ===", textareaRef.current);
 
   return (
     <Drawer direction="right" modal={false}>

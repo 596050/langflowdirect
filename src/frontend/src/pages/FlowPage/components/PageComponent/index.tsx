@@ -55,6 +55,7 @@ import {
   MermaidChartDirection,
   MermaidParserEvent,
 } from "../GenerateFlow/models/mermaid.model";
+import { translatedGenericNodes, translateMermaidToGenericNodes } from "../GenerateFlow/nodeGeneration/genericNodeGeneration";
 import SelectionMenu from "../SelectionMenuComponent";
 import getRandomName from "./utils/get-random-name";
 import isWrappedWithClass from "./utils/is-wrapped-with-class";
@@ -81,7 +82,7 @@ const useMermaidConversion = ({
     mermaid.initialize({
       startOnLoad: false,
     });
-  }, [])
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
@@ -112,7 +113,7 @@ const useMermaidConversion = ({
     //   direction: parser.getDirection(),
     // });
 
-    console.log('===  index.tsx [115] ===', parser);
+    // console.log('===  index.tsx [115] ===', parser);
 
     handleMermaidDefinitionChange({
       nodes: Object.values(mermaidNodes),
@@ -127,57 +128,67 @@ const useMermaidConversion = ({
     });
   }
 
-
-
   function handleMermaidDefinitionChange(event: MermaidParserEvent) {
-    console.log('===  index.tsx [131] ===', event);
-    const reactflowEdges: Edge[] = event.edges.map(
-        (mermaidEdge: IMermaidEdgeDefinition) =>
-          {
-            console.log('===  index.tsx [134] ===', mermaidEdge);
-            return ({
-            id: uuidv4(),
-            source: mermaidEdge.start,
-            target: mermaidEdge.end,
-            type: "customEdgeType",
-            markerStart: "oneOrMany",
-            markerEnd: "arrow-end",
-            style: { stroke: "#f6ab6c" },
-            elementsSelectable: true,
-            label: mermaidEdge.text,
-            dragging: true,
-            // markerEnd: {
-            //   type: MarkerType.ArrowClosed,
-            // },
-            animated: false,
-            data: {
-              label: mermaidEdge.text,
-              raw: mermaidEdge,
-            },
-          }) as Edge
-        }
-        ,
-      ),
-      reactflowNodes: Node[] = event.nodes.map(
-        (mermaidNode: IMermaidNodeDefinition, index: number) => {
-          console.log('===  index.tsx [159] ===', mermaidNode);
-          return ({
-            id: mermaidNode.id,
-            position: { x: index * 200, y: index * 200 },
-            type: "customNodeType",
-            dragHandle: ".custom-node",
-            dragging: true,
-            data: {
-              label: mermaidNode.text,
-              raw: mermaidNode,
-              layoutDirection: event.direction,
-            },
-          })
-        },
-      );
+    // console.log('===  index.tsx [131] ===', event);
 
-    setReactflowNodes(reactflowNodes);
-    setReactflowEdges(reactflowEdges);
+    // const translatedToGenericNodes = translatedGenericNodes(event);
+    console.log('===  index.tsx [135] ===', event.edges);
+    const translatedToGenericNodes = translateMermaidToGenericNodes(
+      event.nodes,
+      // @ts-ignore
+      event.edges,
+    );
+    console.log("===  index.tsx [137] ===", translatedToGenericNodes);
+    // const reactflowEdges: Edge[] = event.edges.map(
+    //     (mermaidEdge: IMermaidEdgeDefinition) =>
+    //       {
+    //         console.log('===  index.tsx [134] ===', mermaidEdge);
+    //         return ({
+    //         id: uuidv4(),
+    //         source: mermaidEdge.start,
+    //         target: mermaidEdge.end,
+    //         type: "customEdgeType",
+    //         markerStart: "oneOrMany",
+    //         markerEnd: "arrow-end",
+    //         style: { stroke: "#f6ab6c" },
+    //         elementsSelectable: true,
+    //         label: mermaidEdge.text,
+    //         dragging: true,
+    //         // markerEnd: {
+    //         //   type: MarkerType.ArrowClosed,
+    //         // },
+    //         animated: false,
+    //         data: {
+    //           label: mermaidEdge.text,
+    //           raw: mermaidEdge,
+    //         },
+    //       }) as Edge
+    //     }
+    //     ,
+    //   ),
+    //   reactflowNodes: Node[] = event.nodes.map(
+    //     (mermaidNode: IMermaidNodeDefinition, index: number) => {
+    //       console.log('===  index.tsx [159] ===', mermaidNode);
+    //       return ({
+    //         id: mermaidNode.id,
+    //         position: { x: index * 200, y: index * 200 },
+    //         type: "customNodeType",
+    //         dragHandle: ".custom-node",
+    //         dragging: true,
+    //         data: {
+    //           label: mermaidNode.text,
+    //           raw: mermaidNode,
+    //           layoutDirection: event.direction,
+    //         },
+    //       })
+    //     },
+    //   );
+
+    // setReactflowNodes(reactflowNodes);
+    // setReactflowEdges(reactflowEdges);
+    // setMermaidChartDirection(event.direction);
+    setReactflowNodes(translatedToGenericNodes.nodes);
+    setReactflowEdges(translatedToGenericNodes.edges);
     setMermaidChartDirection(event.direction);
   }
 
@@ -197,8 +208,8 @@ export default function Page({
   view?: boolean;
 }): JSX.Element {
   const { reactflowNodes, reactflowEdges, mermaidChartDirection } =
-  useMermaidConversion({
-    graphDefinition: `flowchart TB
+    useMermaidConversion({
+      graphDefinition: `flowchart TB
     A5[Confirm completeness with finance department]
     A5.1[Compose confirmation email and send to human]
     A5.1.1[Make API request to LLM expert on context-specific finance related questions]
@@ -213,15 +224,14 @@ export default function Page({
     A5 --> A5.1 --> A5.1.1
     A5.1 --> A5.2
     A5.2 --> A5.3`,
-  });
+    });
 
-
-// console.log(
-//   "===  index.tsx [225] ===",
-//   reactflowNodes,
-//   reactflowEdges,
-//   mermaidChartDirection,
-// );
+  // console.log(
+  //   "===  index.tsx [225] ===",
+  //   reactflowNodes,
+  //   reactflowEdges,
+  //   mermaidChartDirection,
+  // );
 
   const uploadFlow = useFlowsManagerStore((state) => state.uploadFlow);
   const autoSaveCurrentFlow = useFlowsManagerStore(
@@ -313,6 +323,7 @@ export default function Page({
   }
 
   const setNode = useFlowStore((state) => state.setNode);
+
   useEffect(() => {
     const handleMouseMove = (event) => {
       position.current = { x: event.clientX, y: event.clientY };
@@ -521,6 +532,7 @@ export default function Page({
             id: newId,
           },
         };
+        console.log('===  index.tsx [529] ===', JSON.stringify(newNode));
         paste(
           { nodes: [newNode], edges: [] },
           { x: event.clientX, y: event.clientY },
@@ -621,7 +633,14 @@ export default function Page({
     setEdges(updatedEdges);
   }
 
-  console.log('===  index.tsx [609] ===', nodes, edges, reactflowNodes, reactflowEdges, mermaidChartDirection);
+  console.log(
+    "===  index.tsx [609] ===",
+    nodes,
+    edges,
+    reactflowNodes,
+    reactflowEdges,
+    mermaidChartDirection,
+  );
 
   return (
     <div className="h-full w-full" ref={reactFlowWrapper}>
@@ -629,6 +648,8 @@ export default function Page({
       {showCanvas ? (
         <div id="react-flow-id" className="h-full w-full">
           <ReactFlow
+            // nodes={nodes}
+            // edges={edges}
             nodes={reactflowNodes}
             edges={reactflowEdges}
             onNodesChange={onNodesChange}
