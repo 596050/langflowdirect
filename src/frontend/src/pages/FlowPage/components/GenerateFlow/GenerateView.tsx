@@ -136,3 +136,62 @@ function GenerateView() {
 }
 
 export default GenerateView;
+
+
+
+  // flowchart TB
+  //   A1[Copies of agreements or instruments that place restrictions or encumbrances on assets]
+  //   A1.1[Collect document files of agreements or instruments]
+  //   A1.1.1[Access document management system]
+  //   A1.1.1 --> |API Request:COMPONENT| APIRequest1
+  //   A1.1.2[Search for agreements or instruments]
+  //   A1.1.2 --> |API Request:COMPONENT| APIRequest2
+  //   A1.1.3[Download or request copies]
+  //   A1.1.3 --> |API Request:COMPONENT| APIRequest3
+  //   A1.1.4[Store documents in a dedicated folder]
+  //   A1.1.4 --> |API Request:COMPONENT| APIRequest4
+
+  //   A2[Identify all assets]
+  //   A2.1[Consult the company's asset registry]
+  //   A2.1 --> |API Request:COMPONENT| APIRequest5
+  //   A2.2[Review recent financial statements]
+  //   A2.2 --> |API Request:COMPONENT| APIRequest6
+  //   A2.3[Cross-check with department heads]
+  //   A2.3 --> |API Request:COMPONENT| APIRequest7
+  //   A2.4[Compile a comprehensive list of assets]
+  //   A2.4 --> |API Request:COMPONENT| APIRequest8
+
+  //   A3[Review the company's asset registry]
+  //   A3.1[Access the asset registry database]
+  //   A3.1 --> |API Request:COMPONENT| APIRequest9
+  //   A3.2[Verify the accuracy of the entries]
+  //   A3.2 --> |API Request:COMPONENT| APIRequest10
+  //   A3.3[Update any missing or incorrect information]
+  //   A3.3 --> |API Request:COMPONENT| APIRequest11
+  //   A3.4[Confirm the completeness of the asset list]
+  //   A3.4 --> |API Request:COMPONENT| APIRequest12
+
+  //   A4[LLM: Extract and list assets from the asset registry]
+  //   A4.1[Prepare a query to extract assets]
+  //   A4.1 --> |API Request:COMPONENT| APIRequest13
+  //   A4.2[Run the query on the LLM]
+  //   A4.2 --> |API Request:COMPONENT| APIRequest14
+  //   A4.3[Retrieve the list of assets]
+  //   A4.3 --> |API Request:COMPONENT| APIRequest15
+  //   A4.4[Format and organize the extracted data]
+  //   A4.4 --> |API Request:COMPONENT| APIRequest16
+
+  //   A5[Confirm completeness with finance department]
+  //   A5.1[Compose confirmation email and send to human]
+  //   A5.1.1[Make API request to LLM expert on context-specific finance related questions]
+  //   A5.1.1 --> |API Request:COMPONENT| APIRequest17
+  //   A5.2[Wait for confirmation and make any changes from human, repeat any steps required, if no changes then send using email endpoint at API]
+  //   A5.2 --> |API Request:COMPONENT| APIRequest18
+  //   A5.3[Wait for final confirmation, send to email endpoint at API]
+  //   A5.3 --> |API Request:COMPONENT| APIRequest19
+
+  //   A6[Confirm the completeness of the asset list with the finance department]
+
+  //   A5 --> A5.1 --> A5.1.1
+  //   A5.1 --> A5.2
+  //   A5.2 --> A5.3`,
