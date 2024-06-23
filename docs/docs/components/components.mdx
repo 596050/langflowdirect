@@ -1,0 +1,2461 @@
+<!-- #################################################### -->
+<!-- ### agents.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Agents
+
+Agents are components that use reasoning to make decisions and take actions, designed to autonomously perform tasks or provide services with some degree of agency. LLM chains can only perform hardcoded sequences of actions, while agents use LLMs to reason through which actions to take, and in which order.
+
+---
+
+### AgentInitializer
+
+The `AgentInitializer` constructs a zero-shot agent from a language model (LLM) and additional tools.
+
+**Parameters**:
+
+- **LLM:** The language model used by the `AgentInitializer`.
+- **Memory:** Enables memory functionality, allowing the agent to recall and use information from previous interactions.
+- **Tools:** The tools available to the agent.
+- **Agent:** Specifies the type of agent to instantiate. Currently supported types include `zero-shot-react-description`, `react-docstore`, `self-ask-with-search`, `conversational-react-description`, and `openai-functions`.
+
+---
+
+### CSVAgent
+
+The `CSVAgent` interacts with CSV (Comma-Separated Values) files, commonly used to store tabular data. Each row in a CSV file represents a record, and each column represents a field. The CSV agent can read and write CSV files, process data, and perform tasks such as filtering, sorting, and aggregating.
+
+**Parameters**:
+
+- **LLM:** The language model used by the `CSVAgent`.
+- **Path:** The file path to the CSV data.
+
+---
+
+### JSONAgent
+
+The `JSONAgent` manages JSON (JavaScript Object Notation) data. This agent, like the CSVAgent, uses a language model (LLM) and a toolkit for JSON manipulation. It can explore a JSON blob to extract needed information, list keys, retrieve values, and navigate through the JSON structure.
+
+**Parameters**:
+
+- **LLM:** The language model used by the `JSONAgent`.
+- **Toolkit:** The toolkit available to the agent.
+
+---
+
+### SQLAgent
+
+The `SQLAgent` interacts with SQL databases, capable of querying, retrieving data, and executing SQL statements. It provides insights into the database structure, including tables and schemas, and can perform operations such as insertions, updates, and deletions.
+
+**Parameters**:
+
+- **LLM:** The language model used by the `SQLAgent`.
+- **Database URI:** The connection URI for the SQL database.
+
+---
+
+### VectorStoreAgent
+
+The `VectorStoreAgent` operates with a vector store, which is a data structure for storing and querying vector-based data representations. This agent can query the vector store to find information relevant to user inputs.
+
+**Parameters**:
+
+- **LLM:** The language model used by the `VectorStoreAgent`.
+- **Vector Store Info:** The `VectorStoreInfo` used by the agent.
+
+---
+
+### VectorStoreRouterAgent
+
+The `VectorStoreRouterAgent` is a custom agent that uses a vector store router. It is typically used to retrieve information from multiple vector stores connected through a `VectorStoreRouterToolkit`.
+
+**Parameters**:
+
+- **LLM:** The language model used by the `VectorStoreRouterAgent`.
+- **Vector Store Router Toolkit:** The toolkit used by the agent.
+
+---
+
+### ZeroShotAgent
+
+The `ZeroShotAgent` uses the ReAct framework to decide which tool to use based on the tool's description. It is the most general-purpose action agent, capable of determining the necessary actions and their sequence through an `LLMChain`.
+
+**Parameters**:
+
+- **Allowed Tools:** The tools accessible to the agent.
+- **LLM Chain:** The LLM Chain used by the agent.
+
+
+<!-- #################################################### -->
+<!-- ### chains.mdx ### -->
+<!-- #################################################### -->
+
+import ThemedImage from "@theme/ThemedImage";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import ZoomableImage from "/src/theme/ZoomableImage.js";
+import Admonition from "@theme/Admonition";
+
+# Chains
+
+Chains, in the context of language models, refer to a series of calls made to a language model. This approach allows for using the output of one call as the input for another. Different chain types facilitate varying complexity levels, making them useful for creating pipelines and executing specific scenarios.
+
+---
+
+## CombineDocsChain
+
+`CombineDocsChain` includes methods to combine or aggregate loaded documents for question-answering functionality.
+
+Acts as a proxy for LangChain’s [documents](https://python.langchain.com/docs/modules/chains/document/) chains produced by the `load_qa_chain` function.
+
+**Parameters**:
+
+- **LLM:** Language Model to use in the chain.
+- **chain_type:** Type of chain to be used, each applying a different combination strategy:
+  - **stuff**: Most straightforward document chain. It takes a list of documents, inserts them all into a prompt, and passes that prompt to an LLM. Suitable for cases where documents are small and few.
+  - **map_reduce**: Applies an LLM to each document individually (the `Map` step), treating the output as a new document. It then combines these documents to get a single output (the `Reduce` step). Compression may occur to ensure documents fit in the final chain.
+  - **map_rerank**: Runs an initial prompt on each document to complete a task and score its certainty. Returns the highest-scoring response.
+  - **refine**: Iteratively updates its answer by looping over the input documents. Each document, along with the latest intermediate answer, is passed to an LLM to generate a new response. This method suits tasks requiring analysis of more documents than the model's context can handle, though it can be less effective for tasks requiring detailed cross-referencing or comprehensive information.
+
+---
+
+## ConversationChain
+
+`ConversationChain` facilitates dynamic, interactive conversations with a language model, ideal for chatbots or virtual assistants.
+
+**Parameters**:
+
+- **LLM:** Language Model to use in the chain.
+- **Memory:** Default memory store.
+- **input_key:** Specifies the key under which user input is stored in the conversation memory, enabling the chain to process and generate responses.
+- **output_key:** Specifies the key under which the generated response is stored, allowing retrieval of the response using this key.
+- **verbose:** Controls the verbosity of the chain's output. Set to `True` to enable detailed internal state outputs, useful for debugging and understanding the chain's behavior. Defaults to `False`.
+
+---
+
+## ConversationalRetrievalChain
+
+`ConversationalRetrievalChain` combines document search with question-answering capabilities, extracting information and providing answers.
+
+A retriever finds documents based on a query but doesn’t store them; it returns the documents matching the query.
+
+**Parameters**:
+
+- **LLM:** Language Model to use in the chain.
+- **Memory:** Default memory store.
+- **Retriever:** The retriever used to fetch relevant documents.
+- **chain_type:** Type of chain to be used, each applying a different combination strategy:
+  - **stuff**: Inserts a list of documents into a prompt and passes it to an LLM. Suitable for cases where documents are small and few.
+  - **map_reduce**: Processes each document with an LLM separately, combines them for a single output. Compressions may occur to fit documents into the final chain.
+  - **map_rerank**: Scores responses based on certainty from each document, returns the highest.
+  - **refine**: Updates answers iteratively by looping through documents, passing each with intermediate answers to an LLM for a new response. This method is beneficial for tasks that involve extensive document analysis.
+- **return_source_documents:** Specifies whether to include source documents used in the output. Useful for providing context or references to the user. Defaults to `True`.
+- **verbose:** Controls verbosity of output. Set to `True` for detailed logs, useful for debugging. Defaults to `False`.
+
+---
+
+
+<!-- #################################################### -->
+<!-- ### custom.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Custom Components
+
+<Admonition type="info" label="Tip">
+  Read the [Custom Component Tutorial](../tutorials/custom_components) for
+  detailed information on custom components.
+</Admonition>
+
+Custom components let you extend Langflow by creating reusable and configurable components from a Python script.
+
+## Usage
+
+To create a custom component:
+
+1. Define a class that inherits from `langflow.CustomComponent`.
+2. Implement a `build` method in your class.
+3. Use type annotations in the `build` method to define component fields.
+4. Optionally, use the `build_config` method to customize field appearance and behavior.
+
+**Parameters**
+
+- **Code:** The Python code that defines the component.
+
+## CustomComponent Class
+
+This class is the foundation for creating custom components. It allows users to create new, configurable components tailored to their needs.
+
+### Methods
+
+**build:** This method is essential in a `CustomComponent` class. It defines the component's functionality and how it processes input data. The build method is invoked when you click the **Build** button on the canvas.
+
+The following types are supported in the build method:
+
+| Supported Types                                                   |
+| ----------------------------------------------------------------- |
+| _`str`_, _`int`_, _`float`_, _`bool`_, _`list`_, _`dict`_         |
+| _`langflow.field_typing.NestedDict`_                              |
+| _`langflow.field_typing.Prompt`_                                  |
+| _`langchain.chains.base.Chain`_                                   |
+| _`langchain.PromptTemplate`_                                      |
+| _`from langchain.schema.language_model import BaseLanguageModel`_ |
+| _`langchain.Tool`_                                                |
+| _`langchain.document_loaders.base.BaseLoader`_                    |
+| _`langchain.schema.Document`_                                     |
+| _`langchain.text_splitters.TextSplitter`_                         |
+| _`langchain.vectorstores.base.VectorStore`_                       |
+| _`langchain.embeddings.base.Embeddings`_                          |
+| _`langchain.schema.BaseRetriever`_                                |
+
+The difference between _`dict`_ and _`langflow.field_typing.NestedDict`_ is that one adds a simple key-value pair field, while the other opens a more robust dictionary editor.
+
+<Admonition type="info">
+  Use the `Prompt` type by adding **kwargs to the build method. If you want to
+  add the values of the variables to the template you defined, format the
+  `PromptTemplate` inside the `CustomComponent` class.
+</Admonition>
+
+<Admonition type="info">
+  Use base Python types without a handle by default. To add handles, use the
+  `input_types` key in the `build_config` method.
+</Admonition>
+
+**build_config:** Defines the configuration fields of the component. This method returns a dictionary where each key represents a field name and each value defines the field's behavior.
+
+Supported keys for configuring fields:
+
+| Key                 | Description                                               |
+| ------------------- | --------------------------------------------------------- |
+| `is_list`           | Boolean indicating if the field can hold multiple values. |
+| `options`           | Dropdown menu options.                                    |
+| `multiline`         | Boolean indicating if a field allows multiline input.     |
+| `input_types`       | Allows connection handles for string fields.              |
+| `display_name`      | Field name displayed in the UI.                           |
+| `advanced`          | Hides the field in the default UI view.                   |
+| `password`          | Masks input, useful for sensitive data.                   |
+| `required`          | Overrides the default behavior to make a field mandatory. |
+| `info`              | Tooltip for the field.                                    |
+| `file_types`        | Accepted file types, useful for file fields.              |
+| `range_spec`        | Defines valid ranges for float fields.                    |
+| `title_case`        | Boolean that controls field name capitalization.          |
+| `refresh_button`    | Adds a refresh button that updates field values.          |
+| `real_time_refresh` | Updates the configuration as field values change.         |
+| `field_type`        | Automatically set based on the build method's type hint.  |
+
+<Admonition type="info" label="Tip">
+  Use the `update_build_config` method to dynamically update configurations
+  based on field values.
+</Admonition>
+
+## Additional methods and attributes
+
+The `CustomComponent` class also provides helpful methods for specific tasks (e.g., to load and use other flows from the Langflow platform):
+
+### Methods
+
+- `list_flows`: Lists available flows.
+- `get_flow`: Retrieves a specific flow by name or ID.
+- `load_flow`: Loads a flow by ID.
+
+### Attributes
+
+- `status`: Shows values from the `build` method, useful for debugging.
+- `field_order`: Controls the display order of fields.
+- `icon`: Sets the canvas display icon.
+
+
+<!-- #################################################### -->
+<!-- ### data.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Data
+
+## API Request
+
+This component sends HTTP requests to the specified URLs.
+
+Use this component to interact with external APIs or services and retrieve data. Ensure that the URLs are valid and that you configure the method, headers, body, and timeout correctly.
+
+**Parameters:**
+
+- **URLs:** The URLs to target.
+- **Method:** The HTTP method, such as GET or POST.
+- **Headers:** The headers to include with the request.
+- **Body:** The data to send with the request (for methods like POST, PATCH, PUT).
+- **Timeout:** The maximum time to wait for a response.
+
+---
+
+## Directory
+
+This component recursively retrieves files from a specified directory.
+
+Use this component to retrieve various file types, such as text or JSON files, from a directory. Make sure to provide the correct path and configure the other parameters as needed.
+
+**Parameters:**
+
+- **Path:** The directory path.
+- **Types:** The types of files to retrieve. Leave this blank to retrieve all file types.
+- **Depth:** The level of directory depth to search.
+- **Max Concurrency:** The maximum number of simultaneous file loading operations.
+- **Load Hidden:** Set to true to include hidden files.
+- **Recursive:** Set to true to enable recursive search.
+- **Silent Errors:** Set to true to suppress exceptions on errors.
+- **Use Multithreading:** Set to true to use multithreading in file loading.
+
+---
+
+## File
+
+This component loads a file.
+
+Use this component to load files, such as text or JSON files. Ensure you specify the correct path and configure other parameters as necessary.
+
+**Parameters:**
+
+- **Path:** The file path.
+- **Silent Errors:** Set to true to prevent exceptions on errors.
+
+---
+
+## URL
+
+This component retrieves content from specified URLs.
+
+Ensure the URLs are valid and adjust other parameters as needed.
+**Parameters:**
+
+- **URLs:** The URLs to retrieve content from.
+
+
+<!-- #################################################### -->
+<!-- ### embeddings.mdx ### -->
+<!-- #################################################### -->
+
+# Embeddings
+
+## Amazon Bedrock Embeddings
+
+Used to load embedding models from [Amazon Bedrock](https://aws.amazon.com/bedrock/).
+
+| **Parameter**              | **Type** | **Description**                                                                                                                                     | **Default** |
+| -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `credentials_profile_name` | `str`    | Name of the AWS credentials profile in ~/.aws/credentials or ~/.aws/config, which has access keys or role information.                              |             |
+| `model_id`                 | `str`    | ID of the model to call, e.g., `amazon.titan-embed-text-v1`. This is equivalent to the `modelId` property in the `list-foundation-models` API.      |             |
+| `endpoint_url`             | `str`    | URL to set a specific service endpoint other than the default AWS endpoint.                                                                         |             |
+| `region_name`              | `str`    | AWS region to use, e.g., `us-west-2`. Falls back to `AWS_DEFAULT_REGION` environment variable or region specified in ~/.aws/config if not provided. |             |
+
+## Cohere Embeddings
+
+Used to load embedding models from [Cohere](https://cohere.com/).
+
+| **Parameter**    | **Type** | **Description**                                                           | **Default**          |
+| ---------------- | -------- | ------------------------------------------------------------------------- | -------------------- |
+| `cohere_api_key` | `str`    | API key required to authenticate with the Cohere service.                 |                      |
+| `model`          | `str`    | Language model used for embedding text documents and performing queries.  | `embed-english-v2.0` |
+| `truncate`       | `bool`   | Whether to truncate the input text to fit within the model's constraints. | `False`              |
+
+## Azure OpenAI Embeddings
+
+Generate embeddings using Azure OpenAI models.
+
+| **Parameter**     | **Type** | **Description**                                                                                    | **Default** |
+| ----------------- | -------- | -------------------------------------------------------------------------------------------------- | ----------- |
+| `Azure Endpoint`  | `str`    | Your Azure endpoint, including the resource. Example: `https://example-resource.azure.openai.com/` |             |
+| `Deployment Name` | `str`    | The name of the deployment.                                                                        |             |
+| `API Version`     | `str`    | The API version to use, options include various dates.                                             |             |
+| `API Key`         | `str`    | The API key to access the Azure OpenAI service.                                                    |             |
+
+## Hugging Face API Embeddings
+
+Generate embeddings using Hugging Face Inference API models.
+
+| **Parameter**   | **Type** | **Description**                                       | **Default**              |
+| --------------- | -------- | ----------------------------------------------------- | ------------------------ |
+| `API Key`       | `str`    | API key for accessing the Hugging Face Inference API. |                          |
+| `API URL`       | `str`    | URL of the Hugging Face Inference API.                | `http://localhost:8080`  |
+| `Model Name`    | `str`    | Name of the model to use for embeddings.              | `BAAI/bge-large-en-v1.5` |
+| `Cache Folder`  | `str`    | Folder path to cache Hugging Face models.             |                          |
+| `Encode Kwargs` | `dict`   | Additional arguments for the encoding process.        |                          |
+| `Model Kwargs`  | `dict`   | Additional arguments for the model.                   |                          |
+| `Multi Process` | `bool`   | Whether to use multiple processes.                    | `False`                  |
+
+## Hugging Face Embeddings
+
+Used to load embedding models from [HuggingFace](https://huggingface.co).
+
+| **Parameter**   | **Type** | **Description**                                | **Default**                               |
+| --------------- | -------- | ---------------------------------------------- | ----------------------------------------- |
+| `Cache Folder`  | `str`    | Folder path to cache HuggingFace models.       |                                           |
+| `Encode Kwargs` | `dict`   | Additional arguments for the encoding process. |                                           |
+| `Model Kwargs`  | `dict`   | Additional arguments for the model.            |                                           |
+| `Model Name`    | `str`    | Name of the HuggingFace model to use.          | `sentence-transformers/all-mpnet-base-v2` |
+| `Multi Process` | `bool`   | Whether to use multiple processes.             | `False`                                   |
+
+## OpenAI Embeddings
+
+Used to load embedding models from [OpenAI](https://openai.com/).
+
+| **Parameter**              | **Type**         | **Description**                                  | **Default**              |
+| -------------------------- | ---------------- | ------------------------------------------------ | ------------------------ |
+| `OpenAI API Key`           | `str`            | The API key to use for accessing the OpenAI API. |                          |
+| `Default Headers`          | `Dict[str, str]` | Default headers for the HTTP requests.           |                          |
+| `Default Query`            | `NestedDict`     | Default query parameters for the HTTP requests.  |                          |
+| `Allowed Special`          | `List[str]`      | Special tokens allowed for processing.           | `[]`                     |
+| `Disallowed Special`       | `List[str]`      | Special tokens disallowed for processing.        | `["all"]`                |
+| `Chunk Size`               | `int`            | Chunk size for processing.                       | `1000`                   |
+| `Client`                   | `Any`            | HTTP client for making requests.                 |                          |
+| `Deployment`               | `str`            | Deployment name for the model.                   | `text-embedding-3-small` |
+| `Embedding Context Length` | `int`            | Length of embedding context.                     | `8191`                   |
+| `Max Retries`              | `int`            | Maximum number of retries for failed requests.   | `6`                      |
+| `Model`                    | `str`            | Name of the model to use.                        | `text-embedding-3-small` |
+| `Model Kwargs`             | `NestedDict`     | Additional keyword arguments for the model.      |                          |
+| `OpenAI API Base`          | `str`            | Base URL of the OpenAI API.                      |                          |
+| `OpenAI API Type`          | `str`            | Type of the OpenAI API.                          |                          |
+| `OpenAI API Version`       | `str`            | Version of the OpenAI API.                       |                          |
+| `OpenAI Organization`      | `str`            | Organization associated with the API key.        |                          |
+| `OpenAI Proxy`             | `str`            | Proxy server for the requests.                   |                          |
+| `Request Timeout`          | `float`          | Timeout for the HTTP requests.                   |                          |
+| `Show Progress Bar`        | `bool`           | Whether to show a progress bar for processing.   | `False`                  |
+| `Skip Empty`               | `bool`           | Whether to skip empty inputs.                    | `False`                  |
+| `TikToken Enable`          | `bool`           | Whether to enable TikToken.                      | `True`                   |
+| `TikToken Model Name`      | `str`            | Name of the TikToken model.                      |                          |
+
+## Ollama Embeddings
+
+Generate embeddings using Ollama models.
+
+| **Parameter**       | **Type** | **Description**                                                                          | **Default**              |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------- | ------------------------ |
+| `Ollama Model`      | `str`    | Name of the Ollama model to use.                                                         | `llama2`                 |
+| `Ollama Base URL`   | `str`    | Base URL of the Ollama API.                                                              | `http://localhost:11434` |
+| `Model Temperature` | `float`  | Temperature parameter for the model. Adjusts the randomness in the generated embeddings. |                          |
+
+## VertexAI Embeddings
+
+Wrapper around [Google Vertex AI](https://cloud.google.com/vertex-ai) [Embeddings API](https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings).
+
+| **Parameter**         | **Type**      | **Description**                                                                                                                      | **Default**   |
+| --------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
+| `credentials`         | `Credentials` | The default custom credentials to use.                                                                                               |               |
+| `location`            | `str`         | The default location to use when making API calls.                                                                                   | `us-central1` |
+| `max_output_tokens`   | `int`         | Token limit determines the maximum amount of text output from one prompt.                                                            | `128`         |
+| `model_name`          | `str`         | The name of the Vertex AI large language model.                                                                                      | `text-bison`  |
+| `project`             | `str`         | The default GCP project to use when making Vertex API calls.                                                                         |               |
+| `request_parallelism` | `int`         | The amount of parallelism allowed for requests issued to VertexAI models.                                                            | `5`           |
+| `temperature`         | `float`       | Tunes the degree of randomness in text generations. Should be a non-negative value.                                                  | `0`           |
+| `top_k`               | `int`         | How the model selects tokens for output, the next token is selected from the top `k` tokens.                                         | `40`          |
+| `top_p`               | `float`       | Tokens are selected from the most probable to least until the sum of their probabilities exceeds the top `p` value.                  | `0.95`        |
+| `tuned_model_name`    | `str`         | The name of a tuned model. If provided, `model_name` is ignored.                                                                     |               |
+| `verbose`             | `bool`        | This parameter controls the level of detail in the output. When set to `True`, it prints internal states of the chain to help debug. | `False`       |
+
+
+<!-- #################################################### -->
+<!-- ### experimental.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Experimental
+
+Components in the experimental phase are currently in beta. They have been initially developed and tested but haven't yet achieved a stable or fully supported status. We encourage users to explore these components, provide feedback, and report any issues encountered.
+
+---
+
+## Clear Message History Component
+
+This component clears the message history for a specified session ID.
+
+**Beta:** This component is in beta.
+
+**Parameters**
+
+- **Session ID:**
+  - **Display Name:** Session ID
+  - **Info:** Clears the message history for this ID.
+
+**Usage**
+
+Provide the session ID to clear its message history.
+
+---
+
+## Extract Key From Data
+
+This component extracts specified keys from a record.
+
+**Parameters**
+
+- **Data:**
+
+  - **Display Name:** Data
+  - **Info:** The record from which to extract keys.
+
+- **Keys:**
+
+  - **Display Name:** Keys
+  - **Info:** The keys to be extracted.
+
+- **Silent Errors:**
+  - **Display Name:** Silent Errors
+  - **Info:** Set to true to suppress errors.
+  - **Advanced:** True
+
+**Usage**
+
+Provide the record and specify the keys you want to extract. Optionally, enable silent errors for missing keys.
+
+---
+
+## Flow as Tool
+
+This component turns a function running a flow into a Tool.
+
+**Parameters**
+
+- **Flow Name:**
+
+  - **Display Name:** Flow Name
+  - **Info:** Select the flow to run.
+  - **Options:** List of available flows.
+  - **Real-time Refresh:** True
+  - **Refresh Button:** True
+
+- **Name:**
+
+  - **Display Name:** Name
+  - **Description:** The tool's name.
+
+- **Description:**
+
+  - **Display Name:** Description
+  - **Description:** Describes the tool.
+
+- **Return Direct:**
+  - **Display Name:** Return Direct
+  - **Description:** Returns the result directly.
+  - **Advanced:** True
+
+**Usage**
+
+Select a flow, name and describe the tool, and decide if you want to return the result directly.
+
+---
+
+## Listen
+
+This component listens for a specified notification.
+
+**Parameters**
+
+- **Name:**
+  - **Display Name:** Name
+  - **Info:** The notification to listen for.
+
+**Usage**
+
+Specify the notification to listen for.
+
+---
+
+## List Flows
+
+This component lists all available flows.
+
+**Usage**
+
+Call this component without parameters to list all flows.
+
+---
+
+## Merge Data
+
+This component merges a list of Data.
+
+**Parameters**
+
+- **Data:**
+  - **Display Name:** Data
+
+**Usage**
+
+Provide the Data you want to merge.
+
+---
+
+## Notify
+
+This component generates a notification.
+
+**Parameters**
+
+- **Name:**
+
+  - **Display Name:** Name
+  - **Info:** The notification's name.
+
+- **Data:**
+
+  - **Display Name:** Data
+  - **Info:** Optionally, a record to store in the notification.
+
+- **Append:**
+  - **Display Name:** Append
+  - **Info:** Set to true to append the record to the notification.
+
+**Usage**
+
+Specify the notification name, provide a record if necessary, and indicate whether to append it.
+
+---
+
+## Run Flow
+
+This component runs a specified flow.
+
+**Parameters**
+
+- **Input Value:**
+
+  - **Display Name:** Input Value
+  - **Multiline:** True
+
+- **Flow Name:**
+
+  - **Display Name:** Flow Name
+  - **Info:** Select the flow to run.
+  - **Options:** List of available flows.
+  - **Refresh Button:** True
+
+- **Tweaks:**
+  - **Display Name:** Tweaks
+  - **Info:** Modifications to apply to the flow.
+
+**Usage**
+
+Provide the input value, select the flow, and apply any tweaks.
+
+---
+
+## Runnable Executor
+
+This component executes a specified runnable.
+
+**Parameters**
+
+- **Input Key:**
+
+  - **Display Name:** Input Key
+  - **Info:** The input key.
+
+- **Inputs:**
+
+  - **Display Name:** Inputs
+  - **Info:** Inputs for the runnable.
+
+- **Runnable:**
+
+  - **Display Name:** Runnable
+  - **Info:** The runnable to execute.
+
+- **Output Key:**
+  - **Display Name:** Output Key
+  - **Info:** The output key.
+
+**Usage**
+
+Specify the input key, provide inputs, select the runnable, and optionally define the output key.
+
+---
+
+## SQL Executor
+
+This component executes an SQL query.
+
+**Parameters**
+
+- **Database URL:**
+
+  - **Display Name:** Database URL
+  - **Info:** The database's URL.
+
+- **Include Columns:**
+
+  - **Display Name:** Include Columns
+  - **Info:** Whether to include columns in the result.
+
+- **Passthrough:**
+
+  - **Display Name:** Passthrough
+  - **Info:** Returns the query instead of raising an exception if an error occurs.
+
+- **Add Error:**
+  - **Display Name:** Add Error
+  - **Info:** Includes the error in the result.
+
+**Usage**
+
+Provide the SQL query, specify the database URL, and configure settings for columns, error handling, and passthrough.
+
+---
+
+## SubFlow
+
+This component dynamically generates a tool from a flow.
+
+**Parameters**
+
+- **Input Value:**
+
+  - **Display Name:** Input Value
+  - **Multiline:** True
+
+- **Flow Name:**
+
+  - **Display Name:** Flow Name
+  - **Info:** Select the flow to run.
+  - **Options:** List of available flows.
+  - **Real Time Refresh:** True
+  - **Refresh Button:** True
+
+- **Tweaks:**
+  - **Display Name:** Tweaks
+  - **Info:** Modifications to apply to the flow.
+
+**Usage**
+
+Select a flow, apply any necessary tweaks, and generate a tool.
+
+
+<!-- #################################################### -->
+<!-- ### helpers.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Helpers
+
+### Chat memory
+
+This component retrieves stored chat messages based on a specific session ID.
+
+#### Parameters
+
+- **Sender type:** Choose the sender type from options like "Machine", "User", or "Both".
+- **Sender name:** (Optional) The name of the sender.
+- **Number of messages:** Number of messages to retrieve.
+- **Session ID:** The session ID of the chat history.
+- **Order:** Choose the message order, either "Ascending" or "Descending".
+- **Data template:** (Optional) Template to convert a record to text. If left empty, the system dynamically sets it to the record's text key.
+
+---
+
+### Combine text
+
+This component concatenates two text sources into a single text chunk using a specified delimiter.
+
+#### Parameters
+
+- **First text:** The first text input to concatenate.
+- **Second text:** The second text input to concatenate.
+- **Delimiter:** A string used to separate the two text inputs. Defaults to a space.
+
+---
+
+### Create record
+
+This component dynamically creates a record with a specified number of fields.
+
+#### Parameters
+
+- **Number of fields:** Number of fields to be added to the record.
+- **Text key:** Key used as text.
+
+---
+
+### Custom component
+
+Use this component as a template to create your custom component.
+
+#### Parameters
+
+- **Parameter:** Describe the purpose of this parameter.
+
+<Admonition type="info" title="Info">
+  <p>
+    Customize the <code>build_config</code> and <code>build</code> methods
+    according to your requirements.
+  </p>
+</Admonition>
+
+Learn more about creating custom components at [Custom Component](http://docs.langflow.org/components/custom).
+
+---
+
+### Documents to Data
+
+Convert LangChain documents into Data.
+
+#### Parameters
+
+- **Documents:** Documents to be converted into Data.
+
+---
+
+### ID generator
+
+Generates a unique ID.
+
+#### Parameters
+
+- **Value:** Unique ID generated.
+
+---
+
+### Message history
+
+Retrieves stored chat messages based on a specific session ID.
+
+#### Parameters
+
+- **Sender type:** Options for the sender type.
+- **Sender name:** Sender name.
+- **Number of messages:** Number of messages to retrieve.
+- **Session ID:** Session ID of the chat history.
+- **Order:** Order of the messages.
+
+---
+
+### Data to text
+
+Convert Data into plain text following a specified template.
+
+#### Parameters
+
+- **Data:** The Data to convert to text.
+- **Template:** The template used for formatting the Data. It can contain keys like `{text}`, `{data}`, or any other key in the record.
+
+---
+
+### Split text
+
+Split text into chunks of a specified length.
+
+#### Parameters
+
+- **Texts:** Texts to split.
+- **Separators:** Characters to split on. Defaults to a space.
+- **Max chunk size:** The maximum length (in characters) of each chunk.
+- **Chunk overlap:** The amount of character overlap between chunks.
+- **Recursive:** Whether to split recursively.
+
+---
+
+### Update record
+
+Update a record with text-based key/value pairs, similar to updating a Python dictionary.
+
+#### Parameters
+
+- **Data:** The record to update.
+- **New data:** The new data to update the record with.
+
+
+<!-- #################################################### -->
+<!-- ### inputs-and-outputs.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+import ZoomableImage from "/src/theme/ZoomableImage.js";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+
+# Inputs and Outputs
+
+Inputs and Outputs are a category of components that are used to define where data comes in and out of your flow.
+They also dynamically change the Playground and can be renamed to facilitate building and maintaining your flows.
+
+## Inputs
+
+Inputs are components used to define where data enters your flow. They can receive data from the user, a database, or any other source that can be converted to Text or Data.
+
+The difference between Chat Input and other Input components is the output format, the number of configurable fields, and the way they are displayed in the Playground.
+
+Chat Input components can output `Text` or `Data`. When you want to pass the sender name or sender to the next component, use the `Data` output. To pass only the message, use the `Text` output, useful when saving the message to a database or memory system like Zep.
+
+You can find out more about Chat Input and other Inputs [here](#chat-input).
+
+### Chat Input
+
+This component collects user input from the chat.
+
+<ZoomableImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: "img/chat-input-expanded.png",
+    dark: "img/chat-input-expanded.png",
+  }}
+  style={{ width: "40%", margin: "20px auto" }}
+/>
+
+**Parameters**
+
+- **Sender Type:** Specifies the sender type. Defaults to `User`. Options are `Machine` and `User`.
+- **Sender Name:** Specifies the name of the sender. Defaults to `User`.
+- **Message:** Specifies the message text. It is a multiline text input.
+- **Session ID:** Specifies the session ID of the chat history. If provided, the message will be saved in the Message History.
+
+<Admonition type="note" title="Note">
+  <p>
+    If `As Data` is `true` and the `Message` is a `Data`, the data of the `Data`
+    will be updated with the `Sender`, `Sender Name`, and `Session ID`.
+  </p>
+</Admonition>
+
+One significant capability of the Chat Input component is its ability to transform the Playground into a chat window. This feature is particularly valuable for scenarios requiring user input to initiate or influence the flow.
+
+<ZoomableImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl("img/playground-chat.png"),
+    dark: useBaseUrl("img/playground-chat.png"),
+  }}
+  style={{ width: "100%", maxWidth: "800px", margin: "0 auto" }}
+/>
+
+### Text Input
+
+The **Text Input** component adds an **Input** field on the Playground. This enables you to define parameters while running and testing your flow.
+
+<ZoomableImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: "img/text-input-expanded.png",
+    dark: "img/text-input-expanded.png",
+  }}
+  style={{ width: "50%", margin: "20px auto" }}
+/>
+
+**Parameters**
+
+- **Value:** Specifies the text input value. This is where the user inputs text data that will be passed to the next component in the sequence. If no value is provided, it defaults to an empty string.
+- **Data Template:** Specifies how a `Data` should be converted into `Text`.
+
+The **Data Template** field is used to specify how a `Data` should be converted into `Text`. This is particularly useful when you want to extract specific information from a `Data` and pass it as text to the next component in the sequence.
+
+For example, if you have a `Data` with the following structure:
+
+```json
+{
+  "name": "John Doe",
+  "age": 30,
+  "email": "johndoe@email.com"
+}
+```
+
+A template with `Name: {name}, Age: {age}` will convert the `Data` into a text string of `Name: John Doe, Age: 30`.
+
+If you pass more than one `Data`, the text will be concatenated with a new line separator.
+
+## Outputs
+
+Outputs are components that are used to define where data comes out of your flow. They can be used to send data to the user, to the Playground, or to define how the data will be displayed in the Playground.
+
+The Chat Output works similarly to the Chat Input but does not have a field that allows for written input. It is used as an Output definition and can be used to send data to the user.
+
+You can find out more about it and the other Outputs [here](#chat-output).
+
+### Chat Output
+
+This component sends a message to the chat.
+
+**Parameters**
+
+- **Sender Type:** Specifies the sender type. Default is `"Machine"`. Options are `"Machine"` and `"User"`.
+
+- **Sender Name:** Specifies the sender's name. Default is `"AI"`.
+
+- **Session ID:** Specifies the session ID of the chat history. If provided, messages are saved in the Message History.
+
+- **Message:** Specifies the text of the message.
+
+<Admonition type="note" title="Note">
+  <p>
+    If `As Data` is `true` and the `Message` is a `Data`, the data in the `Data`
+    is updated with the `Sender`, `Sender Name`, and `Session ID`.
+  </p>
+</Admonition>
+
+### Text Output
+
+This component displays text data to the user. It is useful when you want to show text without sending it to the chat.
+
+**Parameters**
+
+- **Value:** Specifies the text data to be displayed. Defaults to an empty string.
+
+The `TextOutput` component provides a simple way to display text data. It allows textual data to be visible in the chat window during your interaction flow.
+
+## Prompts
+
+A prompt is the input provided to a language model, consisting of multiple components and can be parameterized using prompt templates. A prompt template offers a reproducible method for generating prompts, enabling easy customization through input variables.
+
+### Prompt
+
+This component creates a prompt template with dynamic variables. This is useful for structuring prompts and passing dynamic data to a language model.
+
+<ZoomableImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: "img/prompt-with-template.png",
+    dark: "img/prompt-with-template.png",
+  }}
+  style={{ width: "50%", margin: "20px auto" }}
+/>
+
+**Parameters**
+
+- **Template:** The template for the prompt. This field allows you to create other fields dynamically by using curly brackets `{}`. For example, if you have a template like `Hello {name}, how are you?`, a new field called `name` will be created. Prompt variables can be created with any name inside curly brackets, e.g. `{variable_name}`.
+
+### PromptTemplate
+
+The `PromptTemplate` component enables users to create prompts and define variables that control how the model is instructed. Users can input a set of variables which the template uses to generate the prompt when a conversation starts.
+
+After defining a variable in the prompt template, it acts as its own component input. See [Prompt Customization](../administration/prompt-customization) for more details.
+
+- **template:** The template used to format an individual request.
+
+
+<!-- #################################################### -->
+<!-- ### loaders.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from '@theme/Admonition';
+
+# Loaders
+
+<Admonition type="caution" icon="🚧" title="ZONE UNDER CONSTRUCTION">
+    <p>
+        We appreciate your understanding as we polish our documentation – it may contain some rough edges. Share your feedback or report issues to help us improve! 🛠️📝
+    </p>
+</Admonition>
+
+
+
+<!-- #################################################### -->
+<!-- ### memories.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Memories
+
+<Admonition type="caution" icon="🚧" title="ZONE UNDER CONSTRUCTION">
+  <p>
+    Thanks for your patience as we improve our documentation—it might have some
+    rough edges. Share your feedback or report issues to help us enhance it!
+    🛠️📝
+  </p>
+</Admonition>
+
+Memory is a concept in chat-based applications that allows the system to remember previous interactions. This capability helps maintain the context of the conversation and enables the system to understand new messages in light of past messages.
+
+---
+
+### MessageHistory
+
+This component retrieves stored messages using various filters such as sender type, sender name, session ID, and the specific file path where messages are stored. It offers flexible retrieval of chat history, providing insights into past interactions.
+
+**Parameters**
+
+- **sender_type** (optional): Specifies the sender's type. Options include `"Machine"`, `"User"`, or `"Machine and User"`. Filters messages by the sender type.
+- **sender_name** (optional): Specifies the sender's name. Filters messages by the sender's name.
+- **session_id** (optional): Specifies the session ID of the chat history. Filters messages by session.
+- **number_of_messages**: Specifies the number of messages to retrieve. Defaults to `5`. Determines the number of recent messages from the chat history to fetch.
+
+<Admonition type="note" title="Note">
+  <p>
+    The component retrieves messages based on the provided criteria, including
+    the specific file path for stored messages. If no specific criteria are
+    provided, it returns the most recent messages up to the specified limit.
+    This component can be used to review past interactions and analyze
+    conversation flows.
+  </p>
+</Admonition>
+
+### ConversationBufferMemory
+
+The `ConversationBufferMemory` component stores the last few inputs and outputs of a conversation.
+
+**Parameters**
+
+- **input_key**: Specifies the key under which the user input will be stored in the conversation memory.
+- **memory_key**: Specifies the prompt variable name where the memory will store and retrieve chat messages. Defaults to `chat_history`.
+- **output_key**: Specifies the key under which the generated response will be stored.
+- **return_messages**: Determines whether the history should be returned as a string or as a list of messages. The default is `False`.
+
+---
+
+### ConversationBufferWindowMemory
+
+`ConversationBufferWindowMemory` is a variant of the `ConversationBufferMemory` that keeps only the last K interactions in memory. It's useful for maintaining a sliding window of recent interactions without letting the buffer get too large.
+
+**Parameters**
+
+- **input_key**: Specifies the keys in the memory object where input messages are stored.
+- **memory_key**: Specifies the prompt variable name for storing and retrieving chat messages. Defaults to `chat_history`.
+- **k**: Specifies the number of interactions or messages to be stored in the conversation buffer.
+- **output_key**: Specifies the key under which the generated response will be stored.
+- **return_messages**: Determines whether the history should be returned as a string or as a list of messages. The default is `False`.
+
+---
+
+### ConversationEntityMemory
+
+The `ConversationEntityMemory` component uses a key-value store to manage entities mentioned in conversations. This structure enhances the storage and retrieval of information about specific entities.
+
+**Parameters**
+
+- **entity_store**: A structure that stores information about entities mentioned in a conversation.
+- **LLM**: Specifies the language model used in the `ConversationEntityMemory`.
+- **chat_history_key**: A unique identifier for the chat history data associated with a particular entity. This key helps organize and access chat history data for each entity within the memory. Defaults to `history`.
+- **input_key**: Identifies where input messages are stored in the memory object, allowing for their retrieval and manipulation.
+- **k**: Specifies the maximum number of entities that can be stored and retrieved from the memory. Defaults to `10`.
+- **output_key**: Identifies the key under which the generated response is stored, enabling retrieval using this key.
+- **return_messages**: Controls whether the history is returned as a string or as a list of messages. Defaults to `False`.
+
+---
+
+### ConversationKGMemory
+
+The `ConversationKGMemory` utilizes a knowledge graph to enhance memory capabilities. It extracts entities and knowledge triplets from new messages, using previous messages as context.
+
+**Parameters**
+
+- **LLM**: Specifies the language model used in the `ConversationKGMemory`.
+- **input_key**: Identifies where input messages are stored in the memory object, facilitating their retrieval and manipulation.
+- **k**: Indicates the number of previous conversation turns stored in memory, allowing the model to utilize information from these turns. Defaults to `10`.
+- **memory_key**: Specifies the prompt variable name where the memory stores and retrieves chat messages. Defaults to `chat_history`.
+- **output_key**: Identifies the key under which the generated response
+
+is stored, enabling retrieval using this key.
+
+- **return_messages**: Controls whether the history is returned as a string or as a list of messages. Defaults to `False`.
+
+---
+
+### ConversationSummaryMemory
+
+The `ConversationSummaryMemory` summarizes conversations over time, condensing information and storing it efficiently. It's particularly useful for long conversations.
+
+**Parameters**
+
+- **LLM**: Specifies the language model used in the `ConversationSummaryMemory`.
+- **input_key**: Identifies where input messages are stored in the memory object, facilitating their retrieval and manipulation.
+- **memory_key**: Specifies the prompt variable name where the memory stores and retrieves chat messages. Defaults to `chat_history`.
+- **output_key**: Identifies the key under which the generated response is stored, enabling retrieval using this key.
+- **return_messages**: Controls whether the history is returned as a string or as a list of messages. Defaults to `False`.
+
+---
+
+### PostgresChatMessageHistory
+
+The `PostgresChatMessageHistory` component uses a PostgreSQL database to store and retrieve chat message history.
+
+**Parameters**
+
+- **connection_string**: Specifies the details needed to connect to the PostgreSQL database, including username, password, host, port, and database name. Defaults to `postgresql://postgres:mypassword@localhost/chat_history`.
+- **session_id**: A unique identifier used to link chat message history with a specific session or conversation.
+- **table_name**: The name of the PostgreSQL database table where chat message history is stored. Defaults to `message_store`.
+
+---
+
+### VectorRetrieverMemory
+
+The `VectorRetrieverMemory` retrieves vectors based on queries, facilitating vector-based searches and retrievals.
+
+**Parameters**
+
+- **Retriever**: The tool used to fetch documents.
+- **input_key**: Identifies where input messages are stored in the memory object, facilitating their retrieval and manipulation.
+- **memory_key**: Specifies the prompt variable name where the memory stores and retrieves chat messages. Defaults to `chat_history`.
+- **return_messages**: Controls whether the history is returned as a string or as a list of messages. Defaults to `False`.
+
+
+<!-- #################################################### -->
+<!-- ### model_specs.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Large Language Models (LLMs)
+
+A Large Language Model (LLM) is a foundational component of Langflow. It provides a uniform interface for interacting with LLMs from various providers, including OpenAI, Cohere, and HuggingFace. Langflow extensively uses LLMs across its chains and agents, employing them to generate text based on specific prompts or inputs.
+
+---
+
+## Anthropic
+
+This is a wrapper for Anthropic's large language models. Learn more at [Anthropic](https://www.anthropic.com).
+
+- **anthropic_api_key:** This key authenticates and authorizes access to the Anthropic API.
+- **anthropic_api_url:** This URL connects to the Anthropic API.
+- **temperature:** This parameter adjusts the randomness level in text generation. Set this to a non-negative number.
+
+---
+
+## ChatAnthropic
+
+This is a wrapper for Anthropic's large language model designed for chat-based interactions. Learn more at [Anthropic](https://www.anthropic.com).
+
+- **anthropic_api_key:** This key authenticates and authorizes access to the Anthropic API.
+- **anthropic_api_url:** This URL connects to the Anthropic API.
+- **temperature:** This parameter adjusts the randomness level in text generation. Set this to a non-negative number.
+
+---
+
+## CTransformers
+
+`CTransformers` provides access to Transformer models implemented in C/C++ using the [GGML](https://github.com/ggerganov/ggml) library.
+
+<Admonition type="info">
+  Ensure the `ctransformers` Python package is installed. Discover more about
+  installation, supported models, and usage
+  [here](https://github.com/marella/ctransformers).
+</Admonition>
+
+- **config:** This configuration is for the Transformer models. Check the default settings and possible configurations at [config](https://github.com/marella/ctransformers#config).
+
+```json
+{
+  "top_k": 40,
+  "top_p": 0.95,
+  "temperature": 0.8,
+  "repetition_penalty": 1.1,
+  "last_n_tokens": 64,
+  "seed": -1,
+  "max_new_tokens": 256,
+  "stop": null,
+  "stream": false,
+  "reset": true,
+  "batch_size": 8,
+  "threads": -1,
+  "context_length": -1,
+  "gpu_layers": 0
+}
+```
+
+- **model**: The file path, directory, or Hugging Face Hub model repository name.
+- **model_file**: The specific model file name within the repository or directory.
+- **model_type**: The type of transformer model used. For further information, visit [ctransformers](https://github.com/marella/ctransformers).
+
+## ChatOpenAI Component
+
+This component interfaces with [OpenAI's](https://openai.com) large language models, supporting a variety of tasks such as chatbots, generative question-answering, and summarization.
+
+- **max_tokens**: The maximum number of tokens to generate for each completion. Set to `-1` to generate as many tokens as possible, based on the model's context size. The default is `256`.
+- **model_kwargs**: A dictionary containing any additional model parameters for undefined calls.
+- **model_name**: Specifies the OpenAI chat model in use.
+- **openai_api_base**: The base URL for accessing the OpenAI API.
+- **openai_api_key**: The API key required for authentication with the OpenAI API.
+- **temperature**: Adjusts the randomness level of the text generation. This should be a non-negative number, defaulting to `0.7`.
+
+## Cohere Component
+
+A wrapper for accessing [Cohere's](https://cohere.com) large language models.
+
+- **cohere_api_key**: The API key needed for Cohere service authentication.
+- **max_tokens**: The limit on the number of tokens to generate per request, defaulting to `256`.
+- **temperature**: Adjusts the randomness level in text generations. This should be a non-negative number, defaulting to `0.75`.
+
+## HuggingFaceHub Component
+
+A component facilitating access to models hosted on the [HuggingFace Hub](https://www.huggingface.co/models).
+
+- **huggingfacehub_api_token**: The token required for API authentication.
+- **model_kwargs**: Parameters passed to the model.
+- **repo_id**: Specifies the model repository, defaulting to `gpt2`.
+- **task**: The specific task to execute with the model, returning either `generated_text` or `summary_text`.
+
+## LlamaCpp Component
+
+This component provides access to `llama.cpp` models, ensuring high performance and flexibility.
+
+- **echo**: Whether to echo the input prompt, defaulting to `False`.
+- **f16_kv**: Indicates if half-precision should be used for the key/value cache, defaulting to `True`.
+- **last_n_tokens_size**: The lookback size for applying repeat penalties, defaulting to `64`.
+- **logits_all**: Whether to return logits for all tokens or just the last one, defaulting to `False`.
+- **logprobs**: The number of log probabilities to return. If set to None, no probabilities are returned.
+- **lora_base**: The path to the base Llama LoRA model.
+- **lora_path**: The specific path to the Llama LoRA model. If set to None, no LoRA model is loaded.
+- **max_tokens**: The maximum number of tokens to generate in one session, defaulting to `256`.
+- **model_path**: The file path to the Llama model.
+- **n_batch**: The number of tokens processed in parallel, defaulting to `8`.
+- **n_ctx**: The context window size for tokens, defaulting to `512`.
+- **repeat_penalty**: The penalty applied to repeated tokens, defaulting to `1.1`.
+- **seed**: The seed for random number generation. If set to `-1`, a random seed is used.
+- **stop**: A list of stop strings that terminate generation when encountered.
+- **streaming**: Indicates whether to stream results token by token, defaulting to `True`.
+- **suffix**: A suffix appended to generated text. If None, no suffix is appended.
+- **tags**: Tags added to the execution trace for monitoring.
+- **temperature**: The sampling temperature, defaulting to `0.8`.
+- **top_k**: The top-k sampling setting, defaulting to `40`.
+- **top_p**: The cumulative probability threshold for top-p sampling, defaulting to `0.95`.
+- **use_mlock**: Forces the system to retain the model in RAM, defaulting to `False`.
+- **use_mmap**: Indicates whether to maintain the model loaded in RAM, defaulting to `True`.
+- **verbose**: Controls the verbosity of output details. When enabled, it provides insights into internal states to aid debugging and understanding, defaulting to `False`.
+- **vocab_only**: Loads only the vocabulary without model weights, defaulting to `False`.
+
+## VertexAI Component
+
+This component integrates with [Google Vertex AI](https://cloud.google.com/vertex-ai) large language models to enhance AI capabilities.
+
+- **credentials**: Custom
+
+credentials used for API interactions.
+
+- **location**: The default location for API calls, defaulting to `us-central1`.
+- **max_output_tokens**: Limits the output tokens per prompt, defaulting to `128`.
+- **model_name**: The name of the Vertex AI model in use, defaulting to `text-bison`.
+- **project**: The default Google Cloud Platform project for API calls.
+- **request_parallelism**: The level of request parallelism for VertexAI model interactions, defaulting to `5`.
+- **temperature**: Adjusts the randomness level in text generations, defaulting to `0`.
+- **top_k**: The setting for selecting the top-k tokens for outputs.
+- **top_p**: The threshold for summing probabilities of the most likely tokens, defaulting to `0.95`.
+- **tuned_model_name**: Specifies a tuned model name, which overrides the default model name if provided.
+- **verbose**: Controls the output verbosity to assist in debugging and understanding the operational details, defaulting to `False`.
+
+---
+
+
+<!-- #################################################### -->
+<!-- ### models.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Models
+
+## Amazon Bedrock
+
+This component facilitates the generation of text using the LLM (Large Language Model) model from Amazon Bedrock.
+
+**Params**
+
+- **Input Value:** Specifies the input text for text generation.
+
+- **System Message (Optional):** A system message to pass to the model.
+
+- **Model ID (Optional):** Specifies the model ID to be used for text generation. Defaults to _`"anthropic.claude-instant-v1"`_. Available options include:
+
+  - _`"ai21.j2-grande-instruct"`_
+  - _`"ai21.j2-jumbo-instruct"`_
+  - _`"ai21.j2-mid"`_
+  - _`"ai21.j2-mid-v1"`_
+  - _`"ai21.j2-ultra"`_
+  - _`"ai21.j2-ultra-v1"`_
+  - _`"anthropic.claude-instant-v1"`_
+  - _`"anthropic.claude-v1"`_
+  - _`"anthropic.claude-v2"`_
+  - _`"cohere.command-text-v14"`_
+
+- **Credentials Profile Name (Optional):** Specifies the name of the credentials profile.
+
+- **Region Name (Optional):** Specifies the region name.
+
+- **Model Kwargs (Optional):** Additional keyword arguments for the model.
+
+- **Endpoint URL (Optional):** Specifies the endpoint URL.
+
+- **Streaming (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **Cache (Optional):** Specifies whether to cache the response.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+<Admonition type="note" title="Note">
+  <p>
+    Ensure that necessary credentials are provided to connect to the Amazon
+    Bedrock API. If connection fails, a ValueError will be raised.
+  </p>
+</Admonition>
+
+---
+
+## Anthropic
+
+This component allows the generation of text using Anthropic Chat&Completion large language models.
+
+**Params**
+
+- **Model Name:** Specifies the name of the Anthropic model to be used for text generation. Available options include:
+
+  - _`"claude-2.1"`_
+  - _`"claude-2.0"`_
+  - _`"claude-instant-1.2"`_
+  - _`"claude-instant-1"`_
+
+- **Anthropic API Key:** Your Anthropic API key.
+
+- **Max Tokens (Optional):** Specifies the maximum number of tokens to generate. Defaults to _`256`_.
+
+- **Temperature (Optional):** Specifies the sampling temperature. Defaults to _`0.7`_.
+
+- **API Endpoint (Optional):** Specifies the endpoint of the Anthropic API. Defaults to _`"https://api.anthropic.com"`_ if not specified.
+
+- **Input Value:** Specifies the input text for text generation.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **System Message (Optional):** A system message to pass to the model.
+
+For detailed documentation and integration guides, please refer to the [Anthropic Component Documentation](https://python.langchain.com/docs/integrations/chat/anthropic).
+
+---
+
+## Azure OpenAI
+
+This component allows the generation of text using the LLM (Large Language Model) model from Azure OpenAI.
+
+**Params**
+
+- **Model Name:** Specifies the name of the Azure OpenAI model to be used for text generation. Available options include:
+
+  - _`"gpt-35-turbo"`_
+  - _`"gpt-35-turbo-16k"`_
+  - _`"gpt-35-turbo-instruct"`_
+  - _`"gpt-4"`_
+  - _`"gpt-4-32k"`_
+  - _`"gpt-4-vision"`_
+
+- **Azure Endpoint:** Your Azure endpoint, including the resource. Example: `https://example-resource.azure.openai.com/`.
+
+- **Deployment Name:** Specifies the name of the deployment.
+
+- **API Version:** Specifies the version of the Azure OpenAI API to be used. Available options include:
+
+  - _`"2023-03-15-preview"`_
+  - _`"2023-05-15"`_
+  - _`"2023-06-01-preview"`_
+  - _`"2023-07-01-preview"`_
+  - _`"2023-08-01-preview"`_
+  - _`"2023-09-01-preview"`_
+  - _`"2023-12-01-preview"`_
+
+- **API Key:** Your Azure OpenAI API key.
+
+- **Temperature (Optional):** Specifies the sampling temperature. Defaults to _`0.7`_.
+
+- **Max Tokens (Optional):** Specifies the maximum number of tokens to generate. Defaults to _`1000`_.
+
+- **Input Value:** Specifies the input text for text generation.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **System Message (Optional):** A system message to pass to the model.
+
+For detailed documentation and integration guides, please refer to the [Azure OpenAI Component Documentation](https://python.langchain.com/docs/integrations/llms/azure_openai).
+
+---
+
+## Cohere
+
+This component enables text generation using Cohere large language models.
+
+**Params**
+
+- **Cohere API Key:** Your Cohere API key.
+
+- **Max Tokens (Optional):** Specifies the maximum number of tokens to generate. Defaults to _`256`_.
+
+- **Temperature (Optional):** Specifies the sampling temperature. Defaults to _`0.75`_.
+
+- **Input Value:** Specifies the input text for text generation.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **System Message (Optional):** A system message to pass to the model.
+
+---
+
+## Google Generative AI
+
+This component enables text generation using Google Generative AI.
+
+**Params**
+
+- **Google API Key:** Your Google API key to use for the Google Generative AI.
+
+- **Model:** The name of the model to use. Supported examples are _`"gemini-pro"`_ and _`"gemini-pro-vision"`_.
+
+- **Max Output Tokens (Optional):** The maximum number of tokens to generate.
+
+- **Temperature:** Run inference with this temperature. Must be in the closed interval [0.0, 1.0].
+
+- **Top K (Optional):** Decode using top-k sampling: consider the set of top_k most probable tokens. Must be positive.
+
+- **Top P (Optional):** The maximum cumulative probability of tokens to consider when sampling.
+
+- **N (Optional):** Number of chat completions to generate for each prompt. Note that the API may not return the full n completions if duplicates are generated.
+
+- **Input Value:** The input to the model.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **System Message (Optional):** A system message to pass to the model.
+
+---
+
+## Hugging Face API
+
+This component facilitates text generation using LLM models from the Hugging Face Inference API.
+
+**Params**
+
+- **Endpoint URL:** The URL of the Hugging Face Inference API endpoint. Should be provided along with necessary authentication credentials.
+
+- **Task:** Specifies the task for text generation. Options include _`"text2text-generation"`_, _`"text-generation"`_, and _`"summarization"`_.
+
+- **API Token:** The API token required for authentication with the Hugging Face Hub.
+
+- **Model Keyword Arguments (Optional):** Additional keyword arguments for the model. Should be provided as a Python dictionary.
+
+- **Input Value:** The input text for text generation.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **System Message (Optional):** A system message to pass to the model.
+
+---
+
+## LiteLLM Model
+
+Generates text using the `LiteLLM` collection of large language models.
+
+**Parameters**
+
+- **Model name:** The name of the model to use. For example, `gpt-3.5-turbo`. (Type: str)
+- **API key:** The API key to use for accessing the provider's API. (Type: str, Optional)
+- **Provider:** The provider of the API key. (Type: str, Choices: "OpenAI", "Azure", "Anthropic", "Replicate", "Cohere", "OpenRouter")
+- **Temperature:** Controls the randomness of the text generation. (Type: float, Default: 0.7)
+- **Model kwargs:** Additional keyword arguments for the model. (Type: Dict, Optional)
+- **Top p:** Filter responses to keep the cumulative probability within the top p tokens. (Type: float, Optional)
+- **Top k:** Filter responses to only include the top k tokens. (Type: int, Optional)
+- **N:** Number of chat completions to generate for each prompt. (Type: int, Default: 1)
+- **Max tokens:** The maximum number of tokens to generate for each chat completion. (Type: int, Default: 256)
+- **Max retries:** Maximum number of retries for failed requests. (Type: int, Default: 6)
+- **Verbose:** Whether to print verbose output. (Type: bool, Default: False)
+- **Input:** The input prompt for text generation. (Type: str)
+- **Stream:** Whether to stream the output. (Type: bool, Default: False)
+- **System message:** System message to pass to the model. (Type: str, Optional)
+
+---
+
+## Ollama
+
+Generate text using Ollama Local LLMs.
+
+**Parameters**
+
+- **Base URL:** Endpoint of the Ollama API. Defaults to 'http://localhost:11434' if not specified.
+- **Model Name:** The model name to use. Refer to [Ollama Library](https://ollama.ai/library) for more models.
+- **Temperature:** Controls the creativity of model responses. (Default: 0.8)
+- **Cache:** Enable or disable caching. (Default: False)
+- **Format:** Specify the format of the output (e.g., json). (Advanced)
+- **Metadata:** Metadata to add to the run trace. (Advanced)
+- **Mirostat:** Enable/disable Mirostat sampling for controlling perplexity. (Default: Disabled)
+- **Mirostat Eta:** Learning rate for Mirostat algorithm. (Default: None) (Advanced)
+- **Mirostat Tau:** Controls the balance between coherence and diversity of the output. (Default: None) (Advanced)
+- **Context Window Size:** Size of the context window for generating tokens. (Default: None) (Advanced)
+- **Number of GPUs:** Number of GPUs to use for computation. (Default: None) (Advanced)
+- **Number of Threads:** Number of threads to use during computation. (Default: None) (Advanced)
+- **Repeat Last N:** How far back the model looks to prevent repetition. (Default: None) (Advanced)
+- **Repeat Penalty:** Penalty for repetitions in generated text. (Default: None) (Advanced)
+- **TFS Z:** Tail free sampling value. (Default: None) (Advanced)
+- **Timeout:** Timeout for the request stream. (Default: None) (Advanced)
+- **Top K:** Limits token selection to top K. (Default: None) (Advanced)
+- **Top P:** Works together with top-k. (Default: None) (Advanced)
+- **Verbose:** Whether to print out response text.
+- **Tags:** Tags to add to the run trace. (Advanced)
+- **Stop Tokens:** List of tokens to signal the model to stop generating text. (Advanced)
+- **System:** System to use for generating text. (Advanced)
+- **Template:** Template to use for generating text. (Advanced)
+- **Input:** The input text.
+- **Stream:** Whether to stream the response.
+- **System Message:** System message to pass to the model. (Advanced)
+
+---
+
+## OpenAI
+
+This component facilitates text generation using OpenAI's models.
+
+**Params**
+
+- **Input Value:** The input text for text generation.
+
+- **Max Tokens (Optional):** The maximum number of tokens to generate. Defaults to _`256`_.
+
+- **Model Kwargs (Optional):** Additional keyword arguments for the model. Should be provided as a nested dictionary.
+
+- **Model Name (Optional):** The name of the model to use. Defaults to _`gpt-4-1106-preview`_. Supported options include: _`gpt-4-turbo-preview`_, _`gpt-4-0125-preview`_, _`gpt-4-1106-preview`_, _`gpt-4-vision-preview`_, _`gpt-3.5-turbo-0125`_, _`gpt-3.5-turbo-1106`_.
+
+- **OpenAI API Base (Optional):** The base URL of the OpenAI API. Defaults to _`https://api.openai.com/v1`_.
+
+- **OpenAI API Key (Optional):** The API key for accessing the OpenAI API.
+
+- **Temperature:** Controls the creativity of model responses. Defaults to _`0.7`_.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **System Message (Optional):** System message to pass to the model.
+
+---
+
+## Qianfan
+
+This component facilitates the generation of text using Baidu Qianfan chat models.
+
+**Params**
+
+- **Model Name:** Specifies the name of the Qianfan chat model to be used for text generation. Available options include:
+
+  - _`"ERNIE-Bot"`_
+  - _`"ERNIE-Bot-turbo"`_
+  - _`"BLOOMZ-7B"`_
+  - _`"Llama-2-7b-chat"`_
+  - _`"Llama-2-13b-chat"`_
+  - _`"Llama-2-70b-chat"`_
+  - _`"Qianfan-BLOOMZ-7B-compressed"`_
+  - _`"Qianfan-Chinese-Llama-2-7B"`_
+  - _`"ChatGLM2-6B-32K"`_
+  - _`"AquilaChat-7B"`_
+
+- **Qianfan Ak:** Your Baidu Qianfan access key, obtainable from [here](https://cloud.baidu.com/product/wenxinworkshop).
+
+- **Qianfan Sk:** Your Baidu Qianfan secret key, obtainable from [here](https://cloud.baidu.com/product/wenxinworkshop).
+
+- **Top p (Optional):** Model parameter. Specifies the top-p value. Only supported in ERNIE-Bot and ERNIE-Bot-turbo models. Defaults to _`0.8`_.
+
+- **Temperature (Optional):** Model parameter. Specifies the sampling temperature. Only supported in ERNIE-Bot and ERNIE-Bot-turbo models. Defaults to _`0.95`_.
+
+- **Penalty Score (Optional):** Model parameter. Specifies the penalty score. Only supported in ERNIE-Bot and ERNIE-Bot-turbo models. Defaults to _`1.0`_.
+
+- **Endpoint (Optional):** Endpoint of the Qianfan LLM, required if custom model is used.
+
+- **Input Value:** Specifies the input text for text generation.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **System Message (Optional):** A system message to pass to the model.
+
+---
+
+## Vertex AI
+
+The `ChatVertexAI` is a component for generating text using Vertex AI Chat large language models API.
+
+**Params**
+
+- **Credentials:** The JSON file containing the credentials for accessing the Vertex AI Chat API.
+
+- **Project:** The name of the project associated with the Vertex AI Chat API.
+
+- **Examples (Optional):** List of examples to provide context for text generation.
+
+- **Location:** The location of the Vertex AI Chat API service. Defaults to _`us-central1`_.
+
+- **Max Output Tokens:** The maximum number of tokens to generate. Defaults to _`128`_.
+
+- **Model Name:** The name of the model to use. Defaults to _`chat-bison`_.
+
+- **Temperature:** Controls the creativity of model responses. Defaults to _`0.0`_.
+
+- **Input Value:** The input text for text generation.
+
+- **Top K:** Limits token selection to top K. Defaults to _`40`_.
+
+- **Top P:** Works together with top-k. Defaults to _`0.95`_.
+
+- **Verbose:** Whether to print out response text. Defaults to _`False`_.
+
+- **Stream (Optional):** Specifies whether to stream the response from the model. Defaults to _`False`_.
+
+- **System Message (Optional):** System message to pass to the model.
+
+
+<!-- #################################################### -->
+<!-- ### retrievers.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Retrievers
+
+A retriever is an interface that returns documents in response to an unstructured query. It's broader than a vector store because it doesn't need to store documents; it only needs to retrieve them.
+
+---
+
+## MultiQueryRetriever
+
+The `MultiQueryRetriever` automates generating multiple queries, retrieves relevant documents for each query, and aggregates the results. This method improves retrieval effectiveness and addresses the limitations of traditional distance-based methods.
+
+**Parameters**
+
+- **LLM:** Specifies the language model used in the `MultiQueryRetriever`.
+- **Prompt:** Defines a schema for the LLM.
+- **Retriever:** Identifies the retriever that fetches documents.
+- **parser_key:** Specifies the key or attribute name of the parsed output for retrieval. By default, it's set to `lines`, meaning the output from the language model is split into separate lines of text. This allows the retriever to fetch documents relevant to each line of text.
+
+
+<!-- #################################################### -->
+<!-- ### text-and-record.mdx ### -->
+<!-- #################################################### -->
+
+# Text and Data
+
+In Langflow 1.0, we added two main input and output types: `Text` and `Data`.
+
+`Text` is a simple string input and output type, while `Data` is a structure very similar to a dictionary in Python. It is a key-value pair data structure.
+
+We've created a few components to help you work with these types. Let's see how a few of them work.
+
+## Data To Text
+
+This is a component that takes in Data and outputs a `Text`. It does this using a template string and concatenating the values of the `Data`, one per line.
+
+If we have the following Data:
+
+```json
+{
+  "sender_name": "Alice",
+  "message": "Hello!"
+}
+{
+  "sender_name": "John",
+  "message": "Hi!"
+}
+```
+
+And the template string is: _`{sender_name}: {message}`_
+
+The output is:
+
+```
+Alice: Hello!
+John: Hi!
+```
+
+## Create Data
+
+This component allows you to create a `Data` from a number of inputs. You can add as many key-value pairs as you want (as long as it is less than 15). Once you've picked that number you'll need to write the name of the Key and can pass `Text` values from other components to it.
+
+## Documents To Data
+
+This component takes in a LangChain `Document` and outputs a `Data`. It does this by extracting the `page_content` and the `metadata` from the `Document` and adding them to the `Data` as text and data respectively.
+
+## Why is this useful?
+
+The idea was to create a unified way to work with complex data in Langflow and to make it easier to work with data that is not just a simple string. This way you can create more complex workflows and use the data in more ways.
+
+## What's next?
+
+We are planning to integrate an array of modalities to Langflow, such as images, audio, and video. This will allow you to create even more complex workflows and use cases. Stay tuned for more updates! 🚀
+
+
+<!-- #################################################### -->
+<!-- ### text-splitters.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Text Splitters
+
+A text splitter is a tool that divides a document or text into smaller chunks or segments. This helps make large texts more manageable for analysis or processing.
+
+---
+
+## CharacterTextSplitter
+
+The `CharacterTextSplitter` splits a long text into smaller chunks based on a specified character. It aims to keep paragraphs, sentences, and words intact as much as possible since these are semantically related elements of text.
+
+**Parameters**
+
+- **Documents:** The input documents to split.
+- **chunk_overlap:** The number of characters that overlap between consecutive chunks. This setting ensures a smoother transition between chunks and prevents information loss. For example, with a `chunk_overlap` of 20 and a `chunk_size` of 100, each chunk will have the last 20 characters overlap with the next chunk's first 20 characters. The default is `200`.
+- **chunk_size:** The maximum number of characters in each chunk. If the text exceeds the specified `chunk_size`, it will be divided into multiple chunks of equal size, with the possible exception of the last chunk, which may be smaller if fewer characters remain. The default is `1000`.
+- **separator:** The character used to split the text into chunks. The default is `.`.
+
+---
+
+## RecursiveCharacterTextSplitter
+
+The `RecursiveCharacterTextSplitter` functions similarly to the `CharacterTextSplitter` by trying to keep paragraphs, sentences, and words together. It also recursively splits the text into smaller chunks if the initial chunk size exceeds a specified threshold.
+
+**Parameters**
+
+- **Documents:** The input documents to split.
+- **chunk_overlap:** The number of characters that overlap between consecutive chunks.
+- **chunk_size:** The maximum number of characters in each chunk.
+- **separators:** A list of characters used to split the text into chunks. The splitter first tries to split text using the first character in the `separators` list. If any chunk exceeds the maximum size, it proceeds to the next character in the list and continues splitting. The defaults are ["\n\n", "\n", " ", ""].
+
+## LanguageRecursiveTextSplitter
+
+The `LanguageRecursiveTextSplitter` divides text into smaller chunks based on the programming language of the text.
+
+**Parameters**
+
+- **Documents:** The input documents to split.
+- **chunk_overlap:** The number of characters that overlap between consecutive chunks.
+- **chunk_size:** The maximum number of characters in each chunk.
+- **separator_type:** This parameter allows splitting text across multiple programming languages such as Ruby, Python, Solidity, Java, and more. The default is `Python`.
+
+
+<!-- #################################################### -->
+<!-- ### toolkits.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Toolkits
+
+<Admonition type="caution" icon="🚧" title="ZONE UNDER CONSTRUCTION">
+  <p>
+    We appreciate your understanding as we polish our documentation - it may
+    contain some rough edges. Share your feedback or report issues to help us
+    improve! 🛠️📝
+  </p>
+</Admonition>
+
+
+<!-- #################################################### -->
+<!-- ### tools.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Tools
+
+## SearchApi
+
+SearchApi offers a real-time search engine results API that returns structured JSON data, including answer boxes, knowledge graphs, organic results, and more.
+
+### Parameters
+
+- **Api Key:** A unique identifier required for authentication with real-time search engines, obtainable through the [SearchApi dashboard](https://www.searchapi.io/).
+- **Engine:** Specifies the search engine used, such as Google, Google Scholar, Bing, YouTube, and YouTube transcripts. Refer to the [documentation](https://www.searchapi.io/docs/google) for a complete list of supported engines.
+- **Parameters:** Allows the selection of various parameters recognized by SearchApi. Some parameters are mandatory while others are optional.
+
+### Output
+
+- **Document:** The JSON response from the request.
+
+## BingSearchRun
+
+Bing Search, a web search engine by Microsoft, provides search results for various content types like web pages, images, videos, and news articles. It combines algorithms and human editors to deliver these results.
+
+### Parameters
+
+- **Api Wrapper:** A BingSearchAPIWrapper component that processes the search URL and subscription key.
+
+## Calculator
+
+The calculator tool leverages an LLMMathChain to provide mathematical calculation capabilities, enabling the agent to perform computations as needed.
+
+### Parameters
+
+- **LLM:** The Language Model used for calculations.
+
+## GoogleSearchResults
+
+This is a wrapper around Google Search tailored for users who need precise control over the JSON data returned from the API.
+
+### Parameters
+
+- **Api Wrapper:** A GoogleSearchAPIWrapper equipped with a Google API key and CSE ID.
+
+## GoogleSearchRun
+
+This tool acts as a quick wrapper around Google Search, executing the search query and returning the snippet from the most relevant result.
+
+### Parameters
+
+- **Api Wrapper:** A GoogleSearchAPIWrapper equipped with a Google API key and CSE ID.
+
+## GoogleSerperRun
+
+A cost-effective Google Search API.
+
+### Parameters
+
+- **Api Wrapper:** A GoogleSerperAPIWrapper with the required API key and result keys.
+
+## InfoSQLDatabaseTool
+
+This tool retrieves metadata about SQL databases. It takes a comma-separated list of table names as input and outputs the schema and sample rows for those tables.
+
+### Parameters
+
+- **Db:** The SQL database to query.
+
+
+<!-- #################################################### -->
+<!-- ### utilities.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Utilities
+
+Utilities are a set of actions that can be used to perform common tasks in a flow. They are available in the **Utilities** section in the sidebar.
+
+---
+
+## GET request
+
+Make a GET request to the specified URL.
+
+**Parameters**
+
+- **URL:** The URL to make the request to. If there are multiple URLs, the request will be made to each URL in order.
+- **Headers:** A dictionary of headers to send with the request.
+
+**Output**
+
+- **List of documents:** A list of documents containing the JSON response from each request.
+
+---
+
+## POST request
+
+Make a POST request to the specified URL.
+
+**Parameters**
+
+- **URL:** The URL to make the request to.
+- **Headers:** A dictionary of headers to send with the request.
+- **Document:** The document containing a JSON object to send with the request.
+
+**Output**
+
+- **Document:** The JSON response from the request as a document.
+
+---
+
+## Update request
+
+Make a PATCH or PUT request to the specified URL.
+
+**Parameters**
+
+- **URL:** The URL to make the request to.
+- **Headers:** A dictionary of headers to send with the request.
+- **Document:** The document containing a JSON object to send with the request.
+- **Method:** The HTTP method to use for the request, either `PATCH` or `PUT`.
+
+**Output**
+
+- **Document:** The JSON response from the request as a document.
+
+---
+
+## JSON document builder
+
+Build a document containing a JSON object using a key and another document page content.
+
+**Parameters**
+
+- **Key:** The key to use for the JSON object.
+- **Document:** The document page to use for the JSON object.
+
+**Output**
+
+- **List of documents:** A list containing the document with the JSON object.
+
+## Unique ID generator
+
+Generates a unique identifier (UUID) for each instance it is invoked, providing a distinct and reliable identifier suitable for a variety of applications.
+
+**Parameters**
+
+- **Value:** This field displays the generated unique identifier (UUID). The UUID is dynamically generated for each instance of the component, ensuring uniqueness across different uses.
+
+**Output**
+
+- Returns a unique identifier (UUID) as a string. This UUID is generated using Python's `uuid` module, ensuring that each identifier is unique and can be used as a reliable reference in your application.
+
+<Admonition type="note" title="Note">
+  The Unique ID Generator is crucial for scenarios requiring distinct
+  identifiers, such as session management, transaction tracking, or any context
+  where different instances or entities must be uniquely identified. The
+  generated UUID is provided as a hexadecimal string, offering a high level of
+  uniqueness and security for identification purposes.
+</Admonition>
+
+For additional information and examples, please consult the [Langflow Components Custom Documentation](http://docs.langflow.org/components/custom).
+
+
+<!-- #################################################### -->
+<!-- ### vector-stores.mdx ### -->
+<!-- #################################################### -->
+
+import Admonition from "@theme/Admonition";
+
+# Vector Stores
+
+### Astra DB
+
+The `Astra DB` initializes a vector store using Astra DB from Data. It creates Astra DB-based vector indexes to efficiently store and retrieve documents.
+
+**Parameters:**
+
+- **Input:** Documents or Data for input.
+- **Embedding:** Embedding model Astra DB uses.
+- **Collection Name:** Name of the Astra DB collection.
+- **Token:** Authentication token for Astra DB.
+- **API Endpoint:** API endpoint for Astra DB.
+- **Namespace:** Astra DB namespace.
+- **Metric:** Metric used by Astra DB.
+- **Batch Size:** Batch size for operations.
+- **Bulk Insert Batch Concurrency:** Concurrency level for bulk inserts.
+- **Bulk Insert Overwrite Concurrency:** Concurrency level for overwriting during bulk inserts.
+- **Bulk Delete Concurrency:** Concurrency level for bulk deletions.
+- **Setup Mode:** Setup mode for the vector store.
+- **Pre Delete Collection:** Option to delete the collection before setup.
+- **Metadata Indexing Include:** Fields to include in metadata indexing.
+- **Metadata Indexing Exclude:** Fields to exclude from metadata indexing.
+- **Collection Indexing Policy:** Indexing policy for the collection.
+
+<Admonition type="note" title="Note">
+  Ensure you configure the necessary Astra DB token and API endpoint before
+  starting.
+</Admonition>
+
+---
+
+### Astra DB Search
+
+`Astra DBSearch` searches an existing Astra DB vector store for documents similar to the input. It uses the `Astra DB` component's functionality for efficient retrieval.
+
+**Parameters:**
+
+- **Search Type:** Type of search, such as Similarity or MMR.
+- **Input Value:** Value to search for.
+- **Embedding:** Embedding model Astra DB uses.
+- **Collection Name:** Name of the Astra DB collection.
+- **Token:** Authentication token for Astra DB.
+- **API Endpoint:** API endpoint for Astra DB.
+- **Namespace:** Astra DB namespace.
+- **Metric:** Metric used by Astra DB.
+- **Batch Size:** Batch size for operations.
+- **Bulk Insert Batch Concurrency:** Concurrency level for bulk inserts.
+- **Bulk Insert Overwrite Concurrency:** Concurrency level for overwriting during bulk inserts.
+- **Bulk Delete Concurrency:** Concurrency level for bulk deletions.
+- **Setup Mode:** Setup mode for the vector store.
+- **Pre Delete Collection:** Option to delete the collection before setup.
+- **Metadata Indexing Include:** Fields to include in metadata indexing.
+- **Metadata Indexing Exclude:** Fields to exclude from metadata indexing.
+- **Collection Indexing Policy:** Indexing policy for the collection.
+
+---
+
+### Chroma
+
+`Chroma` sets up a vector store using Chroma for efficient vector storage and retrieval within language processing workflows.
+
+**Parameters:**
+
+- **Collection Name:** Name of the collection.
+- **Persist Directory:** Directory to persist the Vector Store.
+- **Server CORS Allow Origins (Optional):** CORS allow origins for the Chroma server.
+- **Server Host (Optional):** Host for the Chroma server.
+- **Server Port (Optional):** Port for the Chroma server.
+- **Server gRPC Port (Optional):** gRPC port for the Chroma server.
+- **Server SSL Enabled (Optional):** SSL configuration for the Chroma server.
+- **Input:** Input data for creating the Vector Store.
+- **Embedding:** Embeddings used for the Vector Store.
+
+For detailed documentation and integration guides, please refer to the [Chroma Component Documentation](https://python.langchain.com/docs/integrations/vectorstores/chroma).
+
+---
+
+### Chroma Search
+
+`ChromaSearch` searches a Chroma collection for documents similar to the input text. It leverages Chroma to ensure efficient document retrieval.
+
+**Parameters:**
+
+- **Input:** Input text for search.
+- **Search Type:** Type of search, such as Similarity or MMR.
+- **Collection Name:** Name of the Chroma collection.
+- **Index Directory:** Directory where the Chroma index is stored.
+- **Embedding:** Embedding model used for vectorization.
+- **Server CORS Allow Origins (Optional):** CORS allow origins for the Chroma server.
+- **Server Host (Optional):** Host for the Chroma server.
+- **Server Port (Optional):** Port for the Chroma server.
+- **Server gRPC Port (Optional):** gRPC port for the Chroma server.
+- **Server SSL Enabled (Optional):** SSL configuration for the Chroma server.
+
+---
+
+### Couchbase
+
+`Couchbase` builds a Couchbase vector store from Data, streamlining the storage and retrieval of documents.
+
+**Parameters:**
+
+- **Embedding:** Model used by Couchbase.
+- **Input:** Documents or Data.
+- **Couchbase Cluster Connection String:** Cluster Connection string.
+- **Couchbase Cluster Username:** Cluster Username.
+- **Couchbase Cluster Password:** Cluster Password.
+- **Bucket Name:** Bucket identifier in Couchbase.
+- **Scope Name:** Scope identifier in Couchbase.
+- **Collection Name:** Collection identifier in Couchbase.
+- **Index Name:** Index identifier.
+
+For detailed documentation and integration guides, please refer to the [Couchbase Component Documentation](https://python.langchain.com/docs/integrations/vectorstores/couchbase).
+
+---
+
+### Couchbase Search
+
+`CouchbaseSearch` leverages the Couchbase component to search for documents based on similarity metric.
+
+**Parameters:**
+
+- **Input:** Search query.
+- **Embedding:** Model used in the Vector Store.
+- **Couchbase Cluster Connection String:** Cluster Connection string.
+- **Couchbase Cluster Username:** Cluster Username.
+- **Couchbase Cluster Password:** Cluster Password.
+- **Bucket Name:** Bucket identifier.
+- **Scope Name:** Scope identifier.
+- **Collection Name:** Collection identifier in Couchbase.
+- **Index Name:** Index identifier.
+
+---
+
+### FAISS
+
+The `FAISS` component manages document ingestion into a FAISS Vector Store, optimizing document indexing and retrieval.
+
+**Parameters:**
+
+- **Embedding:** Model used for vectorizing inputs.
+- **Input:** Documents to ingest.
+- **Folder Path:** Save path for the FAISS index, relative to Langflow.
+- **Index Name:** Index identifier.
+
+For more details, see the [FAISS Component Documentation](https://faiss.ai/index.html).
+
+---
+
+### FAISS Search
+
+`FAISSSearch` searches a FAISS Vector Store for documents similar to a given input, using similarity metrics for efficient retrieval.
+
+**Parameters:**
+
+- **Embedding:** Model used in the FAISS Vector Store.
+- **Folder Path:** Path to load the FAISS index from, relative to Langflow.
+- **Input:** Search query.
+- **Index Name:** Index identifier.
+
+---
+
+### MongoDB Atlas
+
+`MongoDBAtlas` builds a MongoDB Atlas-based vector store from Data, streamlining the storage and retrieval of documents.
+
+**Parameters:**
+
+- **Embedding:** Model used by MongoDB Atlas.
+- **Input:** Documents or Data.
+- **Collection Name:** Collection identifier in MongoDB Atlas.
+- **Database Name:** Database identifier.
+- **Index Name:** Index identifier.
+- **MongoDB Atlas Cluster URI:** Cluster URI.
+- **Search Kwargs:** Additional search parameters.
+
+<Admonition type="note" title="Note">
+  Ensure pymongo is installed for using MongoDB Atlas Vector Store.
+</Admonition>
+
+---
+
+### MongoDB Atlas Search
+
+`MongoDBAtlasSearch` leverages the MongoDBAtlas component to search for documents based on similarity metrics.
+
+**Parameters:**
+
+- **Search Type:** Type of search, such as "Similarity" or "MMR".
+- **Input:** Search query.
+- **Embedding:** Model used in the Vector Store.
+- **Collection Name:** Collection identifier.
+- **Database Name:** Database identifier.
+- **Index Name:** Index identifier.
+- **MongoDB Atlas Cluster URI:** Cluster URI.
+- **Search Kwargs:** Additional search parameters.
+
+---
+
+### PGVector
+
+`PGVector` integrates a Vector Store within a PostgreSQL database, allowing efficient storage and retrieval of vectors.
+
+**Parameters:**
+
+- **Input:** Value for the Vector Store.
+- **Embedding:** Model used.
+- **PostgreSQL Server Connection String:** Server URL.
+- **Table:** Table name in the PostgreSQL database.
+
+For more details, see the [PGVector Component Documentation](https://python.langchain.com/docs/integrations/vectorstores/pgvector).
+
+<Admonition type="note" title="Note">
+  Ensure the PostgreSQL server is accessible and configured correctly.
+</Admonition>
+
+---
+
+### PGVector Search
+
+`PGVectorSearch` extends `PGVector` to search for documents based on similarity metrics.
+
+**Parameters:**
+
+- **Input:** Search query.
+- **Embedding:** Model used.
+- **PostgreSQL Server Connection String:** Server URL.
+- **Table:** Table name.
+- **Search Type:** Type of search, such as "Similarity" or "MMR".
+
+---
+
+### Pinecone
+
+`Pinecone` constructs a Pinecone wrapper from Data, setting up Pinecone-based vector indexes for document storage and retrieval.
+
+**Parameters:**
+
+- **Input:** Documents or Data.
+- **Embedding:** Model used.
+- **Index Name:** Index identifier.
+- **Namespace:** Namespace used.
+- **Pinecone API Key:** API key.
+- **Pinecone Environment:** Environment settings.
+- **Search Kwargs:** Additional search parameters.
+- **Pool Threads:** Number of threads.
+
+<Admonition type="note" title="Note">
+  Ensure the Pinecone API key and environment are correctly configured.
+</Admonition>
+
+---
+
+### Pinecone Search
+
+`PineconeSearch` searches a Pinecone Vector Store for documents similar to the input, using advanced similarity metrics.
+
+**Parameters:**
+
+- **Search Type:** Type of search, such as "Similarity" or "MMR".
+- **Input Value:** Search query.
+- **Embedding:** Model used.
+- **Index Name:** Index identifier.
+- **Namespace:** Namespace used.
+- **Pinecone API Key:** API key.
+- **Pinecone Environment:** Environment settings.
+- **Search Kwargs:** Additional search parameters.
+- **Pool Threads:** Number of threads.
+
+---
+
+### Qdrant
+
+`Qdrant` allows efficient similarity searches and retrieval operations, using a list of texts to construct a Qdrant wrapper.
+
+**Parameters:**
+
+- **Input:** Documents or Data.
+- **Embedding:** Model used.
+- **API Key:** Qdrant API key.
+- **Collection Name:** Collection identifier.
+- **Advanced Settings:** Includes content payload key, distance function, gRPC port, host, HTTPS, location, metadata payload key, path, port, prefer gRPC, prefix, search kwargs, timeout, URL.
+
+---
+
+### Qdrant Search
+
+`QdrantSearch` extends `Qdrant` to search for documents similar to the input based on advanced similarity metrics.
+
+**Parameters:**
+
+- **Search Type:** Type of search, such as "Similarity" or "MMR".
+- **Input Value:** Search query.
+- **Embedding:** Model used.
+- **API Key:** Qdrant API key.
+- **Collection Name:** Collection identifier.
+- **Advanced Settings:** Includes content payload key, distance function, gRPC port, host, HTTPS, location, metadata payload key, path, port, prefer gRPC, prefix, search kwargs, timeout, URL.
+
+---
+
+### Redis
+
+`Redis` manages a Vector Store in a Redis database, supporting efficient vector storage and retrieval.
+
+**Parameters:**
+
+- **Index Name:** Default index name.
+- **Input:** Data for building the Redis Vector Store.
+- **Embedding:** Model used.
+- **Schema:** Optional schema file (.yaml) for document structure.
+- **Redis Server Connection String:** Server URL.
+- **Redis Index:** Optional index name.
+
+For detailed documentation, refer to the [Redis Documentation](https://python.langchain.com/docs/integrations/vectorstores/redis).
+
+<Admonition type="note" title="Note">
+  Ensure the Redis server URL and index name are configured correctly. Provide a
+  schema if no documents are available.
+</Admonition>
+
+---
+
+### Redis Search
+
+`RedisSearch` searches a Redis Vector Store for documents similar to the input.
+
+**Parameters:**
+
+- **Search Type:** Type of search, such as "Similarity" or "MMR".
+- **Input Value:** Search query.
+- **Index Name:** Default index name.
+- **Embedding:** Model used.
+- **Schema:** Optional schema file (.yaml) for document structure.
+- **Redis Server Connection String:** Server URL.
+- **Redis Index:** Optional index name.
+
+---
+
+### Supabase
+
+`Supabase` initializes a Supabase Vector Store from texts and embeddings, setting up an environment for efficient document retrieval.
+
+**Parameters:**
+
+- **Input:** Documents or data.
+- **Embedding:** Model used.
+- **Query Name:** Optional query name.
+- **Search Kwargs:** Advanced search parameters.
+- **Supabase Service Key:** Service key.
+- **Supabase URL:** Instance URL.
+- **Table Name:** Optional table name.
+
+<Admonition type="note" title="Note">
+  Ensure the Supabase service key, URL, and table name are properly configured.
+</Admonition>
+
+---
+
+### Supabase Search
+
+`SupabaseSearch` searches a Supabase Vector Store for documents similar to the input.
+
+**Parameters:**
+
+- **Search Type:** Type of search, such as "Similarity" or "MMR".
+- **Input Value:** Search query.
+- **Embedding:** Model used.
+- **Query Name:** Optional query name.
+- **Search Kwargs:** Advanced search parameters.
+- **Supabase Service Key:** Service key.
+- **Supabase URL:** Instance URL.
+- **Table Name:** Optional table name.
+
+---
+
+### Vectara
+
+`Vectara` sets up a Vectara Vector Store from files or upserted data, optimizing document retrieval.
+
+**Parameters:**
+
+- **Vectara Customer ID:** Customer ID.
+- **Vectara Corpus ID:** Corpus ID.
+- **Vectara API Key:** API key.
+- **Files Url:** Optional URLs for file initialization.
+- **Input:** Optional data for corpus upsert.
+
+For more information, consult the [Vectara Component Documentation](https://python.langchain.com/docs/integrations/vectorstores/vectara).
+
+<Admonition type="note" title="Note">
+  If inputs or files_url are provided, they will be processed accordingly.
+</Admonition>
+
+---
+
+### Vectara Search
+
+`VectaraSearch` searches a Vectara Vector Store for documents based on the provided input.
+
+**Parameters:**
+
+- **Search Type:** Type of search, such as "Similarity" or "MMR".
+- **Input Value:** Search query.
+- **Vectara Customer ID:** Customer ID.
+- **Vectara Corpus ID:** Corpus ID.
+- **Vectara API Key:** API key.
+- **Files Url:** Optional URLs for file initialization.
+
+---
+
+### Weaviate
+
+`Weaviate` facilitates a Weaviate Vector Store setup, optimizing text and document indexing and retrieval.
+
+**Parameters:**
+
+- **Weaviate URL:** Default instance URL.
+- **Search By Text:** Indicates whether to search by text.
+- **API Key:** Optional API key for authentication.
+- **Index Name:** Optional index name.
+- **Text Key:** Default text extraction key.
+- **Input:** Document or record.
+- **Embedding:** Model used.
+- **Attributes:** Optional additional attributes.
+
+For more details, see the [Weaviate Component Documentation](https://python.langchain.com/docs/integrations/vectorstores/weaviate).
+
+<Admonition type="note" title="Note">
+  Ensure Weaviate instance is running and accessible. Verify API key, index
+  name, text key, and attributes are set correctly.
+</Admonition>
+
+---
+
+### Weaviate Search
+
+`WeaviateSearch` searches a Weaviate Vector Store for documents similar to the input.
+
+**Parameters:**
+
+- **Search Type:** Type of search, such as "Similarity" or "MMR".
+- **Input Value:** Search query.
+- **Weaviate URL:** Default instance URL.
+- **Search By Text:** Indicates whether to search by text.
+- **API Key:** Optional API key for authentication.
+- **Index Name:** Optional index name.
+- **Text Key:** Default text extraction key.
+- **Embedding:** Model used.
+- **Attributes:** Optional additional attributes.
+
+---
+
+

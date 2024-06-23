@@ -76,7 +76,14 @@
     "web-vitals": "^4.1.1",
     "zod": "^3.23.8",
     "zustand": "^4.5.2",
-    "vaul": "^0.9.0"
+    "vaul": "^0.9.0",
+    "allotment": "^1.20.2",
+    "dagre": "^0.8.5",
+    "mermaid": "^10.9.1",
+    "monaco-editor": "^0.49.0",
+    "monaco-editor-textmate": "^4.0.0",
+    "monaco-textmate": "^3.0.1",
+    "onigasm": "^2.2.5"
   },
   "scripts": {
     "dev:docker": "vite --host 0.0.0.0",

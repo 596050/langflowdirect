@@ -46,6 +46,7 @@ import ConnectionLineComponent from "../ConnectionLineComponent";
 import SelectionMenu from "../SelectionMenuComponent";
 import getRandomName from "./utils/get-random-name";
 import isWrappedWithClass from "./utils/is-wrapped-with-class";
+import GenerateView from "../GenerateFlow/GenerateView";
 
 const nodeTypes = {
   genericNode: GenericNode,
@@ -458,6 +459,7 @@ export default function Page({
 
   return (
     <div className="h-full w-full" ref={reactFlowWrapper}>
+      {/* <GenerateView/> */}
       {showCanvas ? (
         <div id="react-flow-id" className="h-full w-full">
           <ReactFlow
@@ -492,6 +494,7 @@ export default function Page({
             panActivationKeyCode={""}
             proOptions={{ hideAttribution: true }}
             onPaneClick={onPaneClick}
+            onlyRenderVisibleElements={true}
           >
             <Background className="" />
             {!view && (
