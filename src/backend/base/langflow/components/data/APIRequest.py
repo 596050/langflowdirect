@@ -181,3 +181,14 @@ class APIRequestComponent(Component):
             )
         self.status = results
         return results
+
+
+    def print_schema_to_json(self):
+        schema = {
+            "display_name": self.display_name,
+            "description": self.description,
+            "icon": self.icon,
+            "inputs": [input_.__dict__ for input_ in self.inputs],
+            "outputs": [output.__dict__ for output in self.outputs],
+        }
+        return json.dumps(schema, indent=2)

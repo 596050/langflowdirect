@@ -1,6 +1,6 @@
 import { cloneDeep } from "lodash";
 import { LinkIcon, SparklesIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import IconComponent from "../../../../components/genericIconComponent";
 import ShadTooltip from "../../../../components/shadTooltipComponent";
 import { Input } from "../../../../components/ui/input";
@@ -25,8 +25,6 @@ import ParentDisclosureComponent from "../ParentDisclosureComponent";
 import SidebarDraggableComponent from "./sideBarDraggableComponent";
 import { sortKeys } from "./utils";
 import sensitiveSort from "./utils/sensitive-sort";
-
-
 
 export default function ExtraSidebar(): JSX.Element {
   const data = useTypesStore((state) => state.data);
@@ -300,7 +298,7 @@ export default function ExtraSidebar(): JSX.Element {
           .filter((x) => PRIORITY_SIDEBAR_ORDER.includes(x))
           .map((SBSectionName: keyof APIObjectType, index) =>
             Object.keys(dataFilter[SBSectionName]).length > 0 ? (
-              <>
+
                 <DisclosureComponent
                   defaultOpen={
                     getFilterEdge.length !== 0 || search.length !== 0
@@ -308,7 +306,7 @@ export default function ExtraSidebar(): JSX.Element {
                       : false
                   }
                   isChild={false}
-                  key={index + search + JSON.stringify(getFilterEdge)}
+                  key={`${index}${SBSectionName + search + JSON.stringify(getFilterEdge)}`}
                   button={{
                     title: nodeNames[SBSectionName] ?? nodeNames.unknown,
                     Icon:
@@ -362,14 +360,13 @@ export default function ExtraSidebar(): JSX.Element {
                       ))}
                   </div>
                 </DisclosureComponent>
-              </>
             ) : (
               <div key={`div${SBSectionName}${index}`}></div>
             ),
           )}{" "}
         <ParentDisclosureComponent
           defaultOpen={search.length !== 0 || getFilterEdge.length !== 0}
-          key={`${search.length !== 0}-${getFilterEdge.length !== 0}-Advanced`}
+          key={`ParentDisclosureComponent${search.length !== 0}-${getFilterEdge.length !== 0}-Advanced`}
           button={{
             title: "Advanced",
             Icon: nodeIconsLucide.unknown,
@@ -381,7 +378,7 @@ export default function ExtraSidebar(): JSX.Element {
             .filter((x) => !PRIORITY_SIDEBAR_ORDER.includes(x))
             .map((SBSectionName: keyof APIObjectType, index) =>
               Object.keys(dataFilter[SBSectionName]).length > 0 ? (
-                <>
+                <Fragment key={`DisclosureComponent${index}${SBSectionName + search + JSON.stringify(getFilterEdge)}`}>
                   <DisclosureComponent
                     isChild={false}
                     defaultOpen={
@@ -389,7 +386,6 @@ export default function ExtraSidebar(): JSX.Element {
                         ? true
                         : false
                     }
-                    key={index + search + JSON.stringify(getFilterEdge)}
                     button={{
                       title: nodeNames[SBSectionName] ?? nodeNames.unknown,
                       Icon:
@@ -449,11 +445,11 @@ export default function ExtraSidebar(): JSX.Element {
                     Object.keys(dataFilter).length -
                       PRIORITY_SIDEBAR_ORDER.length +
                       1 && (
-                    <>
                       <a
                         target={"_blank"}
                         href="https://langflow.store"
                         className="components-disclosure-arrangement"
+                        key={`DiscoverMore${index}`}
                       >
                         <div className="flex gap-4">
                           {/* BUG ON THIS ICON */}
@@ -472,11 +468,10 @@ export default function ExtraSidebar(): JSX.Element {
                           </div>
                         </div>
                       </a>
-                    </>
                   )}
-                </>
+                </Fragment>
               ) : (
-                <div key={index}></div>
+                <div key={`EmptyDiv${index}`}></div>
               ),
             )}
         </ParentDisclosureComponent>

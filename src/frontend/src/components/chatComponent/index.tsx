@@ -4,14 +4,24 @@ import { useHotkeys } from "react-hotkeys-hook";
 import IOModal from "../../modals/IOModal";
 import ApiModal from "../../modals/apiModal";
 import ShareModal from "../../modals/shareModal";
+import { GenerateFlowSlide } from "../../pages/FlowPage/components/GenerateFlow";
 import useFlowStore from "../../stores/flowStore";
 import useFlowsManagerStore from "../../stores/flowsManagerStore";
 import { useShortcutsStore } from "../../stores/shortcuts";
 import { useStoreStore } from "../../stores/storeStore";
 import { classNames, isThereModal } from "../../utils/utils";
 import ForwardedIconComponent from "../genericIconComponent";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "../ui/drawer";
 import { Separator } from "../ui/separator";
-import { GenerateFlowSlide } from "../../pages/FlowPage/components/GenerateFlow";
 
 export default function FlowToolbar(): JSX.Element {
   const preventDefault = true;
@@ -137,14 +147,18 @@ export default function FlowToolbar(): JSX.Element {
               <Separator orientation="vertical" />
             </div>
             <div className="flex cursor-pointer items-center gap-2">
-            <div className="relative inline-flex w-full items-center justify-center gap-1 px-5 py-3 text-sm font-semibold transition-all duration-500 ease-in-out hover:bg-hover">
+              <Drawer direction="right" modal={false}>
+                <DrawerTrigger>
+                  <div className="relative inline-flex w-full items-center justify-center gap-1 px-5 py-3 text-sm font-semibold transition-all duration-500 ease-in-out hover:bg-hover">
                     <ForwardedIconComponent
                       name="BotMessageSquareIcon"
                       className={"h-5 w-5 transition-all"}
                     />
                     Generate Flow
                   </div>
-              <GenerateFlowSlide/>
+                </DrawerTrigger>
+                <GenerateFlowSlide />
+              </Drawer>
             </div>
             {/* <div>
               <Separator orientation="vertical" />

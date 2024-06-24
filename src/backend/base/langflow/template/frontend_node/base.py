@@ -173,3 +173,28 @@ class FrontendNode(BaseModel):
         template = Template(type_name="Component", fields=inputs)
         kwargs["template"] = template
         return cls(**kwargs)
+
+    def print_schema_to_json(self):
+        schema = {
+            "name": self.name,
+            "display_name": self.display_name,
+            "description": self.description,
+            "icon": self.icon,
+            "is_input": self.is_input,
+            "is_output": self.is_output,
+            "is_composition": self.is_composition,
+            "base_classes": self.base_classes,
+            "documentation": self.documentation,
+            "custom_fields": self.custom_fields,
+            "output_types": self.output_types,
+            "full_path": self.full_path,
+            "pinned": self.pinned,
+            "conditional_paths": self.conditional_paths,
+            "frozen": self.frozen,
+            "outputs": [output.dict() for output in self.outputs],
+            "field_order": self.field_order,
+            "beta": self.beta,
+            "error": self.error,
+            "edited": self.edited,
+        }
+        return json.dumps(schema, indent=2)

@@ -55,7 +55,7 @@ import {
   MermaidChartDirection,
   MermaidParserEvent,
 } from "../GenerateFlow/models/mermaid.model";
-import { translatedGenericNodes, translateMermaidToGenericNodes } from "../GenerateFlow/nodeGeneration/genericNodeGeneration";
+import { convertMermaidToReactFlow } from "../GenerateFlow/nodeGeneration/genericNodeGeneration";
 import SelectionMenu from "../SelectionMenuComponent";
 import getRandomName from "./utils/get-random-name";
 import isWrappedWithClass from "./utils/is-wrapped-with-class";
@@ -132,11 +132,8 @@ const useMermaidConversion = ({
     // console.log('===  index.tsx [131] ===', event);
 
     // const translatedToGenericNodes = translatedGenericNodes(event);
-    console.log('===  index.tsx [135] ===', event.edges);
-    const translatedToGenericNodes = translateMermaidToGenericNodes(
-      event.nodes,
-      // @ts-ignore
-      event.edges,
+    const translatedToGenericNodes = convertMermaidToReactFlow(
+      event
     );
     console.log("===  index.tsx [137] ===", translatedToGenericNodes);
     // const reactflowEdges: Edge[] = event.edges.map(
