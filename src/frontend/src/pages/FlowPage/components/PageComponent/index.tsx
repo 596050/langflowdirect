@@ -40,6 +40,7 @@ import { useTypesStore } from "../../../../stores/typesStore";
 import { APIClassType } from "../../../../types/api";
 import { FlowType, NodeType } from "../../../../types/flow";
 import {
+  checkOldComponents,
   generateFlow,
   generateNodeFromFlow,
   getNodeId,
@@ -269,6 +270,7 @@ export default function Page({
   const onConnect = useFlowStore((state) => state.onConnect);
   const currentFlowId = useFlowsManagerStore((state) => state.currentFlowId);
   const setErrorData = useAlertStore((state) => state.setErrorData);
+  const setNoticeData = useAlertStore((state) => state.setNoticeData);
   const [selectionMenuVisible, setSelectionMenuVisible] = useState(false);
   const edgeUpdateSuccessful = useRef(true);
 
@@ -342,6 +344,15 @@ export default function Page({
       });
     }
   }, [currentFlowId, reactFlowInstance]);
+
+  useEffect(() => {
+    if (checkOldComponents({ nodes: flow?.data?.nodes ?? [] })) {
+      setNoticeData({
+        title:
+          "Components created before Langflow 1.0 may be unstable. Ensure components are up to date.",
+      });
+    }
+  }, []);
 
   useEffect(() => {
     return () => {
