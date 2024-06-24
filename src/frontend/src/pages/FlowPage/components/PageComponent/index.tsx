@@ -645,10 +645,10 @@ export default function Page({
       {showCanvas ? (
         <div id="react-flow-id" className="h-full w-full">
           <ReactFlow
-            // nodes={nodes}
-            // edges={edges}
-            nodes={reactflowNodes}
-            edges={reactflowEdges}
+            nodes={nodes}
+            edges={edges}
+            // nodes={reactflowNodes}
+            // edges={reactflowEdges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnectMod}

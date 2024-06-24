@@ -54,6 +54,8 @@ export default function GenericNode({
   xPos?: number;
   yPos?: number;
 }): JSX.Element {
+  console.log('===  index.tsx [57] ===', {data,selected});
+console.log('===  index.tsx [58] ===', JSON.stringify(data));
   const preventDefault = true;
   const types = useTypesStore((state) => state.types);
   const templates = useTypesStore((state) => state.templates);
