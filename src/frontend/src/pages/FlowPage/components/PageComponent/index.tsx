@@ -23,6 +23,7 @@ import ReactFlow, {
   OnSelectionChangeParams,
   SelectionDragHandler,
   updateEdge,
+
 } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import GenericNode from "../../../../CustomNodes/GenericNode";
@@ -205,6 +206,7 @@ export default function Page({
   flow: FlowType;
   view?: boolean;
 }): JSX.Element {
+
   const { reactflowNodes, reactflowEdges, mermaidChartDirection } =
     useMermaidConversion({
       graphDefinition: `flowchart TB
@@ -242,7 +244,6 @@ export default function Page({
   const [showCanvas, setSHowCanvas] = useState(
     Object.keys(templates).length > 0 && Object.keys(types).length > 0,
   );
-
   const reactFlowInstance = useFlowStore((state) => state.reactFlowInstance);
   const setReactFlowInstance = useFlowStore(
     (state) => state.setReactFlowInstance,
@@ -284,13 +285,16 @@ export default function Page({
       const clonedNodes = cloneDeep(nodes);
       const clonedEdges = cloneDeep(edges);
       const clonedSelection = cloneDeep(lastSelection);
+
       updateIds({ nodes: clonedNodes, edges: clonedEdges }, clonedSelection!);
+
       const { newFlow, removedEdges } = generateFlow(
         clonedSelection!,
         clonedNodes,
         clonedEdges,
         getRandomName(),
       );
+
       const newGroupNode = generateNodeFromFlow(newFlow, getNodeId);
       // const newEdges = reconnectEdges(newGroupNode, removedEdges);
       setNodes([
@@ -455,6 +459,7 @@ export default function Page({
   const groupAction = useShortcutsStore((state) => state.group);
   const cutAction = useShortcutsStore((state) => state.cut);
   const pasteAction = useShortcutsStore((state) => state.paste);
+
   //@ts-ignore
   useHotkeys(undoAction, handleUndo);
   //@ts-ignore
@@ -540,11 +545,14 @@ export default function Page({
             id: newId,
           },
         };
-        console.log('===  index.tsx [529] ===', JSON.stringify(newNode));
+
+        console.log('===  index.tsx [529] ===', JSON.stringify({ nodes: [newNode], edges: [] }));
+
         paste(
           { nodes: [newNode], edges: [] },
           { x: event.clientX, y: event.clientY },
         );
+
       } else if (event.dataTransfer.types.some((types) => types === "Files")) {
         takeSnapshot();
         if (event.dataTransfer.files.item(0)!.type === "application/json") {
@@ -603,6 +611,7 @@ export default function Page({
   const onSelectionEnd = useCallback(() => {
     setSelectionEnded(true);
   }, []);
+
   const onSelectionStart = useCallback((event: MouseEvent) => {
     event.preventDefault();
     setSelectionEnded(false);
@@ -641,18 +650,15 @@ export default function Page({
     setEdges(updatedEdges);
   }
 
-  console.log(
-    "===  index.tsx [609] ===",
-    nodes,
-    edges,
-    reactflowNodes,
-    reactflowEdges,
-    mermaidChartDirection,
-  );
+
+  console.log('===  index.tsx [665] ===', {
+    nodes: flow?.data?.nodes ?? [],
+    edges: flow?.data?.edges ?? [],
+    viewport: flow?.data?.viewport ?? { zoom: 1, x: 0, y: 0 },
+  });
 
   return (
     <div className="h-full w-full" ref={reactFlowWrapper}>
-      {/* <GenerateView/> */}
       {showCanvas ? (
         <div id="react-flow-id" className="h-full w-full">
           <ReactFlow
@@ -711,3 +717,40 @@ export default function Page({
     </div>
   );
 }
+
+
+
+
+// [
+//   {
+//     id: '2-1',
+//     type: 'group',
+//     position: {
+//       x: -170,
+//       y: 250,
+//     },
+//     style: {
+//       width: 380,
+//       height: 180,
+//       backgroundColor: 'rgba(208, 192, 247, 0.2)',
+//     },
+//     data: {
+//       type: 'group',
+//     }
+//   },
+//   {
+//     id: '2-2',
+//     data: {
+//       label: 'Node with Toolbar',
+//     },
+//     type: 'tools',
+//     position: { x: 50, y: 50 },
+//     style: {
+//       width: 80,
+//       height: 80,
+//       background: 'rgb(208, 192, 247)',
+//     },
+//     parentId: '2-1',
+//     extent: 'parent',
+//   },
+// ]

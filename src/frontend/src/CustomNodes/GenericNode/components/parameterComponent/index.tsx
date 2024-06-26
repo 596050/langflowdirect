@@ -562,6 +562,44 @@ export default function ParameterComponent({
           </div>
         </Case>
 
+
+        <Case
+          condition={
+            left === true &&
+            type === "ChildNode"
+            // (data.node?.template[name]?.options ||
+            //   data.node?.template[name]?.real_time_refresh)
+          }
+        >
+          <div className="mt-2 flex w-full items-center gap-2">
+            Hello
+            {/* <div className="flex-1">
+              <Dropdown
+                disabled={disabled}
+                isLoading={isLoading}
+                options={data.node!.template[name]?.options}
+                onSelect={handleOnNewValue}
+                value={data.node!.template[name]?.value}
+                id={"dropdown-" + name}
+              />
+            </div>
+            {data.node?.template[name]?.refresh_button && (
+              <div className="w-1/6">
+                <RefreshButton
+                  isLoading={isLoading}
+                  disabled={disabled}
+                  name={name}
+                  data={data}
+                  button_text={data.node?.template[name]?.refresh_button_text}
+                  handleUpdateValues={handleRefreshButtonPress}
+                  id={"refresh-button-" + name}
+                />
+              </div>
+            )} */}
+          </div>
+        </Case>
+
+
         <Case condition={left === true && type === "code"}>
           <div className="mt-2 w-full">
             <CodeAreaComponent

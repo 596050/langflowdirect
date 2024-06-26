@@ -10,6 +10,7 @@ from .SQLExecutor import SQLExecutorComponent
 from .SubFlow import SubFlowComponent
 from .CreateData import CreateDataComponent
 from .UpdateData import UpdateDataComponent
+from .Group import GroupToolComponent
 
 __all__ = [
     "ConditionalRouterComponent",
@@ -24,4 +25,5 @@ __all__ = [
     "SubFlowComponent",
     "CreateDataComponent",
     "UpdateDataComponent",
+    "GroupToolComponent"
 ]

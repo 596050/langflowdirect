@@ -17,6 +17,8 @@ import ForwardedIconComponent from "../../../../components/genericIconComponent"
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 
+// Create a due diligence flow for company A purchasing company B
+
 export const GenerateFlowSlide = () => {
   const [message, setMessage] = useState("");
   const [isSendButtonDisabled, setIsSendButtonDisabled] = useState(true);
@@ -80,7 +82,10 @@ export const GenerateFlowSlide = () => {
           {/* <Badge variant="outline" className="absolute right-3 top-3">
               Output
             </Badge> */}
-          <p className="h-full min-h-10 flex-wrap whitespace-normal text-wrap text-center"></p>
+          <p className="h-full min-h-10 flex-wrap whitespace-normal text-wrap text-center text-gray-500">
+            Describe the problem you are facing and generate a flow to help you
+            solve it.
+          </p>
 
           <div className="flex-1" />
           <form
@@ -89,6 +94,7 @@ export const GenerateFlowSlide = () => {
             aria-expanded="false"
             aria-controls="radix-:r55:"
             data-state="closed"
+            onSubmit={(e) => e.preventDefault()}
           >
             <div className="relative flex h-full max-w-full flex-1 flex-col">
               <div className="absolute bottom-full left-0 right-0 z-20"></div>
@@ -130,7 +136,7 @@ export const GenerateFlowSlide = () => {
                         ></div>
                       </div>
                     </div>
-                    <div className="flex min-w-0 flex-1 flex-col py-1 pb-1">
+                    <div className="flex min-w-0 flex-1 flex-col py-1">
                       <textarea
                         id="prompt-textarea"
                         tabIndex={0}
@@ -175,3 +181,6 @@ export const GenerateFlowSlide = () => {
     </DrawerContent>
   );
 };
+
+
+

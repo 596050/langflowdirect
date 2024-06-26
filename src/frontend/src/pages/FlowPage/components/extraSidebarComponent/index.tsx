@@ -26,6 +26,20 @@ import SidebarDraggableComponent from "./sideBarDraggableComponent";
 import { sortKeys } from "./utils";
 import sensitiveSort from "./utils/sensitive-sort";
 
+// {
+//   id: '2-1',
+//   type: 'group',
+//   position: {
+//     x: -170,
+//     y: 250,
+//   },
+//   style: {
+//     width: 380,
+//     height: 180,
+//     backgroundColor: 'rgba(208, 192, 247, 0.2)',
+//   },
+// }
+
 export default function ExtraSidebar(): JSX.Element {
   const data = useTypesStore((state) => state.data);
   const templates = useTypesStore((state) => state.templates);
@@ -298,7 +312,6 @@ export default function ExtraSidebar(): JSX.Element {
           .filter((x) => PRIORITY_SIDEBAR_ORDER.includes(x))
           .map((SBSectionName: keyof APIObjectType, index) =>
             Object.keys(dataFilter[SBSectionName]).length > 0 ? (
-
                 <DisclosureComponent
                   defaultOpen={
                     getFilterEdge.length !== 0 || search.length !== 0

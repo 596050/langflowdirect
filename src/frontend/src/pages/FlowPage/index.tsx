@@ -36,6 +36,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
       setOnFlowPage(false);
     };
   }, [id]);
+
   return (
     <>
       <Header />

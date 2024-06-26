@@ -11,6 +11,7 @@ from .input_mixin import (
     BaseInputMixin,
     DatabaseLoadMixin,
     DropDownMixin,
+    MultiSelectMixin,
     FieldTypes,
     FileMixin,
     InputTraceMixin,
@@ -288,6 +289,22 @@ class DropdownInput(BaseInputMixin, DropDownMixin, MetadataTraceMixin):
     field_type: Optional[SerializableFieldTypes] = FieldTypes.TEXT
     options: list[str] = Field(default_factory=list)
 
+class MultiSelectInput(BaseInputMixin, MultiSelectMixin, MetadataTraceMixin):
+    """
+    Represents a multiselect input field.
+
+    This class represents a multiselect input field and provides functionality for handling multiselect values.
+    It inherits from the `BaseInputMixin` and `MultiSelectMixin` classes.
+
+    Attributes:
+        field_type (Optional[SerializableFieldTypes]): The field type of the input. Defaults to FieldTypes.TEXT.
+        options (Optional[Union[list[str], Callable]]): List of options for the field. Only used when is_list=True.
+        Default is None.
+    """
+
+    field_type: Optional[SerializableFieldTypes] = FieldTypes.NESTED_DICT
+    options: list[dict] = Field(default_factory=list)
+
 
 class FileInput(BaseInputMixin, ListableInputMixin, FileMixin, MetadataTraceMixin):
     """
@@ -308,6 +325,7 @@ InputTypes = Union[
     DataInput,
     DictInput,
     DropdownInput,
+    MultiSelectInput,
     FileInput,
     FloatInput,
     HandleInput,
