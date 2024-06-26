@@ -12,6 +12,7 @@ import InputGlobalComponent from "../../../../components/inputGlobalComponent";
 import InputListComponent from "../../../../components/inputListComponent";
 import IntComponent from "../../../../components/intComponent";
 import KeypairListComponent from "../../../../components/keypairListComponent";
+import { MultiSelect } from "../../../../components/multiselectComponent";
 import PromptAreaComponent from "../../../../components/promptComponent";
 import ShadTooltip from "../../../../components/shadTooltipComponent";
 import TextAreaComponent from "../../../../components/textAreaComponent";
@@ -53,6 +54,8 @@ import OutputComponent from "../OutputComponent";
 import HandleRenderComponent from "../handleRenderComponent";
 import OutputModal from "../outputModal";
 import { TEXT_FIELD_TYPES } from "./constants";
+import { Cat, Dog, Fish, Rabbit, Turtle } from "lucide-react";
+
 
 export default function ParameterComponent({
   left,
@@ -562,17 +565,31 @@ export default function ParameterComponent({
           </div>
         </Case>
 
-
         <Case
           condition={
-            left === true &&
-            type === "ChildNode"
+            left === true && type === "ChildNode"
             // (data.node?.template[name]?.options ||
             //   data.node?.template[name]?.real_time_refresh)
           }
         >
           <div className="mt-2 flex w-full items-center gap-2">
-            Hello
+            <MultiSelect
+              disabled={disabled}
+              options={[
+                { value: "react", label: "React", icon: Turtle },
+                { value: "angular", label: "Angular", icon: Cat },
+                { value: "vue", label: "Vue", icon: Dog },
+                { value: "svelte", label: "Svelte", icon: Rabbit },
+                { value: "ember", label: "Ember", icon: Fish },
+              ]}
+              onSelect={handleOnNewValue}
+              value={data?.node?.template?.[name]?.value}
+              id={"multiselect-" + name}
+              onValueChange={function (value: string[]): void {
+                throw new Error("Function not implemented.");
+              }}
+              defaultValue={[]}
+            />
             {/* <div className="flex-1">
               <Dropdown
                 disabled={disabled}
@@ -598,7 +615,6 @@ export default function ParameterComponent({
             )} */}
           </div>
         </Case>
-
 
         <Case condition={left === true && type === "code"}>
           <div className="mt-2 w-full">
