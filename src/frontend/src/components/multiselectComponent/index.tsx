@@ -40,7 +40,6 @@ interface MultiSelectProps<T>
   onValueChange: (value: T[]) => void;
   defaultValue: T[];
   placeholder?: string;
-  maxCount?: number;
   asChild?: boolean;
   className?: string;
   editNode?: boolean;
@@ -67,7 +66,7 @@ const BadgeWrapper = ({
   return (
     <Badge
       className={cn(
-        "rounded-sm p-0",
+        "rounded-sm p-0 overflow-hidden",
         multiSelectVariants({ variant, className }),
       )}
     >
@@ -122,7 +121,6 @@ export const MultiSelect = forwardRef<
       variant,
       defaultValue = [],
       placeholder = "Select options",
-      maxCount = 3,
       asChild = false,
       className,
       editNode = false,
@@ -173,12 +171,6 @@ export const MultiSelect = forwardRef<
       setIsPopoverOpen((prev) => !prev);
     };
 
-    const clearExtraOptions = () => {
-      const newSelectedValues = selectedValues.slice(0, maxCount);
-      setSelectedValues(newSelectedValues);
-      onValueChange(newSelectedValues);
-    };
-
     const toggleAll = () => {
       if (selectedValues?.length === options?.length) {
         handleClear();
@@ -222,7 +214,7 @@ export const MultiSelect = forwardRef<
             {selectedValues?.length > 0 ? (
               <div className="flex w-full items-center justify-between">
                 <div className="flex flex-wrap items-center">
-                  {selectedValues?.slice(0, maxCount).map((selectedValue) => {
+                  {selectedValues?.map((selectedValue) => {
                     return (
                       <BadgeWrapper
                         value={selectedValue}
@@ -233,35 +225,12 @@ export const MultiSelect = forwardRef<
                       />
                     );
                   })}
-                  {selectedValues?.length > maxCount ? (
-                    <Badge
-                      className={cn(
-                        "border-foreground/1 rounded-sm bg-transparent p-0 text-foreground hover:bg-transparent",
-                        multiSelectVariants({ variant, className }),
-                      )}
-                    >
-                      <div
-                        id="content"
-                        className="p-1 pr-0"
-                      >{`+ ${selectedValues?.length - maxCount} more`}</div>
-                      <div id="spacer" className="p-1" />
-                      <div
-                        id="delete"
-                        className="flex items-center justify-center px-1 hover:bg-red-300/80"
-                      >
-                        <XCircle
-                          className="h-4 min-h-4 w-4 min-w-4 cursor-pointer"
-                          //   onClick={toggleOption}
-                        />
-                      </div>
-                    </Badge>
-                  ) : null}
                 </div>
                 <div
                   className="flex items-center justify-between"
                 >
                   <XIcon
-                    className="mx-2 cursor-pointer text-muted-foreground"
+                    className="mx-2 cursor-pointer hover:text-accent-foreground hover:bg-secondary-foreground/5 dark:hover:bg-background/10 hover:shadow-sm text-muted-foreground rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none  ring-offset-background"
                     onClick={(event) => {
                       event.stopPropagation();
                       handleClear();
@@ -271,7 +240,7 @@ export const MultiSelect = forwardRef<
                     orientation="vertical"
                     className="flex h-full min-h-6"
                   />
-                  <ChevronDown className="mx-2 h-4 cursor-pointer text-muted-foreground" />
+                  <ChevronDown className="mx-2 h-4 cursor-pointer text-muted-foreground hover:text-accent-foreground rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none  ring-offset-background" />
                 </div>
               </div>
             ) : (
@@ -279,7 +248,7 @@ export const MultiSelect = forwardRef<
                 <span className="mx-3 text-sm text-muted-foreground">
                   {placeholder}
                 </span>
-                <ChevronDown className="mx-2 h-4 cursor-pointer text-muted-foreground" />
+                <ChevronDown className="mx-2 h-4 cursor-pointer text-muted-foreground hover:text-accent-foreground" />
               </div>
             )}
           </Button>
