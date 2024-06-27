@@ -28,25 +28,56 @@ import {
 } from "../ui/popover";
 import { Separator } from "../ui/separator";
 
-const multiSelectVariants = cva(
-  "m-1 ",
-  {
-    variants: {
-      variant: {
-        default:
-          "border-foreground/10 text-foreground bg-card hover:bg-card/80 whitespace-normal",
-        secondary:
-          "border-foreground/10 bg-secondary text-secondary-foreground hover:bg-secondary/80 whitespace-normal",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80 whitespace-normal",
-        inverted: "inverted",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
+const BadgeWrapper = ({
+    value
+    variant,
+    className,
+    animation,
+    option,
+    onClick,
+ }: { value: MultiSelectValue }) => {
+  return (
+    <Badge
+      key={selectedValue.value}
+      className={cn(
+        "rounded-sm p-0",
+        multiSelectVariants({ variant, className }),
+      )}
+      style={{ animationDuration: `${animation}s` }}
+    >
+      <div id="content" className="p-1 pr-0">
+        {option?.label}
+      </div>
+      <div id="spacer" className="p-1" />
+      <div id="delete" className="flex h-full items-center justify-center">
+        <XCircle
+          className="h-4 min-h-4 w-4 min-w-4 cursor-pointer"
+          onClick={(event) => {
+            event.stopPropagation();
+            toggleOption(selectedValue);
+          }}
+        />
+      </div>
+    </Badge>
+  );
+};
+
+const multiSelectVariants = cva("m-1 ", {
+  variants: {
+    variant: {
+      default:
+        "border-foreground/10 text-foreground bg-card hover:bg-card/80 whitespace-normal",
+      secondary:
+        "border-foreground/10 bg-secondary text-secondary-foreground hover:bg-secondary/80 whitespace-normal",
+      destructive:
+        "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80 whitespace-normal",
+      inverted: "inverted",
     },
   },
-);
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
 type MultiSelectValue = {
   label: string;
@@ -180,29 +211,30 @@ export const MultiSelect = forwardRef<
                       (o) => o.value === selectedValue.value,
                     );
                     return (
-                      <Badge
-                        key={selectedValue.value}
-                        className={cn(
-                          "rounded-sm p-0",
-                          multiSelectVariants({ variant, className }),
-                        )}
-                        style={{ animationDuration: `${animation}s` }}
-                      >
-                        <div id="content" className="p-1 pr-0">{option?.label}</div>
-                        <div id="spacer" className="p-1" />
-                        <div id="delete" className="h-full flex items-center justify-center">
-                          <XCircle
-                            className="h-4 min-h-4 w-4 min-w-4 cursor-pointer"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              toggleOption(selectedValue);
-                            }}
-                          />
-                        </div>
-                      </Badge>
+                      <BadgeWrapper value={selectedValue} />
+                      //   <Badge
+                      //     key={selectedValue.value}
+                      //     className={cn(
+                      //       "rounded-sm p-0",
+                      //       multiSelectVariants({ variant, className }),
+                      //     )}
+                      //     style={{ animationDuration: `${animation}s` }}
+                      //   >
+                      //     <div id="content" className="p-1 pr-0">{option?.label}</div>
+                      //     <div id="spacer" className="p-1" />
+                      //     <div id="delete" className="h-full flex items-center justify-center">
+                      //       <XCircle
+                      //         className="h-4 min-h-4 w-4 min-w-4 cursor-pointer"
+                      //         onClick={(event) => {
+                      //           event.stopPropagation();
+                      //           toggleOption(selectedValue);
+                      //         }}
+                      //       />
+                      //     </div>
+                      //   </Badge>
                     );
                   })}
-                  {selectedValues?.length > maxCount ? (
+                  {/* {selectedValues?.length > maxCount ? (
                     <Badge
                       className={cn(
                         "border-foreground/1 rounded-sm bg-transparent p-0 text-foreground hover:bg-transparent",
@@ -222,7 +254,7 @@ export const MultiSelect = forwardRef<
                         />
                       </div>
                     </Badge>
-                  ) : null}
+                  ) : null} */}
                 </div>
                 <div className="flex items-center justify-between">
                   <XIcon
