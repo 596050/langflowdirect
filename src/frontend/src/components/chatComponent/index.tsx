@@ -4,7 +4,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import IOModal from "../../modals/IOModal";
 import ApiModal from "../../modals/apiModal";
 import ShareModal from "../../modals/shareModal";
-import { GenerateFlowSlide } from "../../pages/FlowPage/components/GenerateFlow";
+import CreateFlowSlide from "../../pages/FlowPage/components/CreateFlow";
 import useFlowStore from "../../stores/flowStore";
 import useFlowsManagerStore from "../../stores/flowsManagerStore";
 import { useShortcutsStore } from "../../stores/shortcuts";
@@ -155,10 +155,10 @@ export default function FlowToolbar(): JSX.Element {
                       name="BotMessageSquareIcon"
                       className={"h-5 w-5 transition-all"}
                     />
-                    Generate Flow
+                    Generate
                   </div>
                 </DrawerTrigger>
-                <GenerateFlowSlide />
+                <CreateFlowSlide />
               </Drawer>
             </div>
             {/* <div>

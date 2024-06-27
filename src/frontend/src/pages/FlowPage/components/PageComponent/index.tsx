@@ -56,8 +56,8 @@ import {
   IMermaidNodeDefinition,
   MermaidChartDirection,
   MermaidParserEvent,
-} from "../GenerateFlow/models/mermaid.model";
-import { convertMermaidToReactFlow } from "../GenerateFlow/nodeGeneration/genericNodeGeneration";
+} from "../CreateFlow/models/mermaid.model";
+import { convertMermaidToReactFlow } from "../CreateFlow/nodeGeneration/genericNodeGeneration";
 import SelectionMenu from "../SelectionMenuComponent";
 import getRandomName from "./utils/get-random-name";
 import isWrappedWithClass from "./utils/is-wrapped-with-class";

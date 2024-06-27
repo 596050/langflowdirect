@@ -19,7 +19,7 @@ import { Button } from "../../../../components/ui/button";
 
 // Create a due diligence flow for company A purchasing company B
 
-export const GenerateFlowSlide = () => {
+export const CreateFlowSlide = () => {
   const [message, setMessage] = useState("");
   const [isSendButtonDisabled, setIsSendButtonDisabled] = useState(true);
   const textareaRef = useRef(null);
@@ -142,7 +142,7 @@ export const GenerateFlowSlide = () => {
                         tabIndex={0}
                         dir="auto"
                         rows={1}
-                        placeholder="Enter prompt and generate flow"
+                        placeholder="Enter prompt and generate"
                         className="text-token-text-primary m-0 max-h-52 max-h-[25dvh] resize-none border-0 bg-transparent px-0 outline-none ring-transparent focus:ring-0 focus-visible:ring-0"
                         value={message}
                         onChange={handleInputChange}
@@ -184,3 +184,4 @@ export const GenerateFlowSlide = () => {
 
 
 
+export default CreateFlowSlide
