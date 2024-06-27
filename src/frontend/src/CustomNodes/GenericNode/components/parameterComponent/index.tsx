@@ -54,7 +54,6 @@ import OutputComponent from "../OutputComponent";
 import HandleRenderComponent from "../handleRenderComponent";
 import OutputModal from "../outputModal";
 import { TEXT_FIELD_TYPES } from "./constants";
-import { Cat, Dog, Fish, Rabbit, Turtle } from "lucide-react";
 
 
 export default function ParameterComponent({
@@ -251,6 +250,8 @@ export default function ParameterComponent({
       handleUpdateOutputHide(false);
     }
   }, [disabledOutput]);
+
+  console.log('===  index.tsx [254] ===',name, data?.node);
 
   return !showNode ? (
     left && LANGFLOW_SUPPORTED_TYPES.has(type ?? "") && !optionalHandle ? (
@@ -583,36 +584,10 @@ export default function ParameterComponent({
                 { value: "svelte", label: "Svelte" },
                 { value: "ember", label: "Ember" },
               ]}
-              value={data?.node?.template?.[name]?.value}
+              value={data?.node?.template?.[name]?.value || []}
               id={"multiselect-" + name}
               onValueChange={handleOnNewValue}
-              defaultValue={[{ value: "react", label: "This is an extra extra extra long label This is an extra extra extra long label" },  { value: "angular", label: "Angular" },
-                { value: "vue", label: "Vue" },  { value: "svelte", label: "Svelte" },
-                { value: "ember", label: "Ember" },]}
             />
-            {/* <div className="flex-1">
-              <Dropdown
-                disabled={disabled}
-                isLoading={isLoading}
-                options={data.node!.template[name]?.options}
-                onSelect={handleOnNewValue}
-                value={data.node!.template[name]?.value}
-                id={"dropdown-" + name}
-              />
-            </div>
-            {data.node?.template[name]?.refresh_button && (
-              <div className="w-1/6">
-                <RefreshButton
-                  isLoading={isLoading}
-                  disabled={disabled}
-                  name={name}
-                  data={data}
-                  button_text={data.node?.template[name]?.refresh_button_text}
-                  handleUpdateValues={handleRefreshButtonPress}
-                  id={"refresh-button-" + name}
-                />
-              </div>
-            )} */}
           </div>
         </Case>
 

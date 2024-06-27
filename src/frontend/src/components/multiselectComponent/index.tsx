@@ -28,24 +28,8 @@ import {
 } from "../ui/popover";
 import { Separator } from "../ui/separator";
 
-type MultiSelectValue = {
-  label: string;
-  value: string;
-};
 
-interface MultiSelectProps<T>
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "defaultValue">,
-    VariantProps<typeof multiSelectVariants> {
-  options: T[];
-  onValueChange: (value: T[]) => void;
-  defaultValue: T[];
-  placeholder?: string;
-  asChild?: boolean;
-  className?: string;
-  editNode?: boolean;
-}
-
-const BadgeWrapper = ({
+const MultiSelectBadgeWrapper = ({
   value,
   variant,
   className,
@@ -66,7 +50,7 @@ const BadgeWrapper = ({
   return (
     <Badge
       className={cn(
-        "rounded-sm p-0 overflow-hidden font-normal",
+        "overflow-hidden rounded-sm p-0 font-normal",
         multiSelectVariants({ variant, className }),
       )}
     >
@@ -110,6 +94,24 @@ const multiSelectVariants = cva("m-1 ", {
   },
 });
 
+
+type MultiSelectValue = {
+  label: string;
+  value: string;
+};
+
+interface MultiSelectProps<T>
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "value">,
+    VariantProps<typeof multiSelectVariants> {
+  options: T[];
+  onValueChange: (value: T[]) => void;
+  placeholder?: string;
+  asChild?: boolean;
+  className?: string;
+  editNode?: boolean;
+  value?: T[];
+}
+
 export const MultiSelect = forwardRef<
   HTMLButtonElement,
   MultiSelectProps<MultiSelectValue>
@@ -119,7 +121,6 @@ export const MultiSelect = forwardRef<
       options = [],
       onValueChange,
       variant,
-      defaultValue = [],
       placeholder = "Select options",
       asChild = false,
       className,
@@ -130,16 +131,19 @@ export const MultiSelect = forwardRef<
     ref,
   ) => {
     const [selectedValues, setSelectedValues] =
-      useState<MultiSelectValue[]>(defaultValue);
+      useState<MultiSelectValue[]>(value || []);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     const combinedRef = useMergeRefs<HTMLButtonElement>(ref);
 
+    console.log("===  index.tsx [133] ===", options);
+    console.log("===  index.tsx [134] ===", value);
+
     useEffect(() => {
-      if (!isEqual(selectedValues, defaultValue)) {
-        setSelectedValues(defaultValue);
+      if (!isEqual(selectedValues, value) && !!value && value?.length > 0) {
+        setSelectedValues(value);
       }
-    }, [defaultValue, selectedValues]);
+    }, [value, selectedValues]);
 
     const handleInputKeyDown = (
       event: React.KeyboardEvent<HTMLInputElement>,
@@ -155,8 +159,8 @@ export const MultiSelect = forwardRef<
     };
 
     const toggleOption = ({ value }: { value: MultiSelectValue }) => {
-      const newSelectedValues = selectedValues.includes(value)
-        ? selectedValues.filter((v) => v !== value)
+      const newSelectedValues = !!selectedValues.find(v => v.value === value.value)
+        ? selectedValues.filter((v) => v.value !== value.value)
         : [...selectedValues, value];
       setSelectedValues(newSelectedValues);
       onValueChange(newSelectedValues);
@@ -171,20 +175,11 @@ export const MultiSelect = forwardRef<
       setIsPopoverOpen((prev) => !prev);
     };
 
-    const toggleAll = () => {
-      if (selectedValues?.length === options?.length) {
-        handleClear();
-      } else {
-        setSelectedValues(options);
-        onValueChange(options);
-      }
-    };
+    const PopoverContentMultiSelect = editNode
+      ? PopoverContent
+      : PopoverContentWithoutPortal;
 
-    const PopoverContentDropdown =
-      //   children ||
-      editNode ? PopoverContent : PopoverContentWithoutPortal;
-
-    const popoverContentDropdownMinWidth = isRefObject(combinedRef)
+    const popoverContentMultiSelectMinWidth = isRefObject(combinedRef)
       ? `${combinedRef?.current?.clientWidth}px`
       : "200px";
 
@@ -200,8 +195,8 @@ export const MultiSelect = forwardRef<
             role="combobox"
             className={cn(
               editNode
-                ? "dropdown-component-outline"
-                : "dropdown-component-false-outline",
+                ? "multiselect-component-outline"
+                : "multiselect-component-false-outline",
               "w-full justify-between font-normal",
               editNode ? "input-edit-node" : "py-2",
               className,
@@ -212,7 +207,7 @@ export const MultiSelect = forwardRef<
                 <div className="flex flex-wrap items-center">
                   {selectedValues?.map((selectedValue) => {
                     return (
-                      <BadgeWrapper
+                      <MultiSelectBadgeWrapper
                         value={selectedValue}
                         onDelete={toggleOption}
                         variant={variant}
@@ -222,11 +217,9 @@ export const MultiSelect = forwardRef<
                     );
                   })}
                 </div>
-                <div
-                  className="flex items-center justify-between"
-                >
+                <div className="flex items-center justify-between">
                   <XIcon
-                    className="mx-2 cursor-pointer hover:text-accent-foreground hover:bg-secondary-foreground/5 dark:hover:bg-background/10 hover:shadow-sm text-muted-foreground rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none  ring-offset-background"
+                    className="mx-2 cursor-pointer rounded-md text-sm text-muted-foreground ring-offset-background transition-colors hover:bg-secondary-foreground/5 hover:text-accent-foreground hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-background/10"
                     onClick={(event) => {
                       event.stopPropagation();
                       handleClear();
@@ -236,7 +229,7 @@ export const MultiSelect = forwardRef<
                     orientation="vertical"
                     className="flex h-full min-h-6"
                   />
-                  <ChevronDown className="mx-2 h-4 cursor-pointer text-muted-foreground hover:text-accent-foreground rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none  ring-offset-background" />
+                  <ChevronDown className="mx-2 h-4 cursor-pointer rounded-md text-sm text-muted-foreground ring-offset-background transition-colors hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
                 </div>
               </div>
             ) : (
@@ -249,16 +242,15 @@ export const MultiSelect = forwardRef<
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContentDropdown
+        <PopoverContentMultiSelect
           id="multiselect-content"
           side="bottom"
-          //    avoidCollisions={!!children}
           className={cn(
             `nocopy nowheel nopan nodelete nodrag noundo w-full p-0`,
           )}
           style={{
-            minWidth: popoverContentDropdownMinWidth,
-            maxWidth: popoverContentDropdownMinWidth,
+            minWidth: popoverContentMultiSelectMinWidth,
+            maxWidth: popoverContentMultiSelectMinWidth,
           }}
           align="start"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
@@ -272,23 +264,6 @@ export const MultiSelect = forwardRef<
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                <CommandItem
-                  key="select-all"
-                  onSelect={toggleAll}
-                  className="cursor-pointer"
-                >
-                  <div
-                    className={cn(
-                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                      selectedValues?.length === options?.length
-                        ? "bg-primary text-primary-foreground"
-                        : "opacity-50 [&_svg]:invisible",
-                    )}
-                  >
-                    <CheckIcon className="h-4 w-4" />
-                  </div>
-                  <span>(Select All)</span>
-                </CommandItem>
                 {options?.map((option) => {
                   const isSelected = !!selectedValues.find(
                     (sv) => sv.value === option.value,
@@ -342,7 +317,7 @@ export const MultiSelect = forwardRef<
               </CommandGroup>
             </CommandList>
           </Command>
-        </PopoverContentDropdown>
+        </PopoverContentMultiSelect>
       </Popover>
     );
   },
