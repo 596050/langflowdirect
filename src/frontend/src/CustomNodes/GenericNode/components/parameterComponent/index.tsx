@@ -576,7 +576,6 @@ export default function ParameterComponent({
           <div className="mt-2 flex w-full items-center gap-2">
             <MultiSelect
               disabled={disabled}
-              maxCount={3}
               options={[
                 { value: "react", label: "This is an extra extra extra long label This is an extra extra extra long label" },
                 { value: "angular", label: "Angular" },

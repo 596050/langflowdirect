@@ -66,7 +66,7 @@ const BadgeWrapper = ({
   return (
     <Badge
       className={cn(
-        "rounded-sm p-0 overflow-hidden",
+        "rounded-sm p-0 overflow-hidden font-normal",
         multiSelectVariants({ variant, className }),
       )}
     >
@@ -186,10 +186,6 @@ export const MultiSelect = forwardRef<
 
     const popoverContentDropdownMinWidth = isRefObject(combinedRef)
       ? `${combinedRef?.current?.clientWidth}px`
-      : "200px";
-
-    const popoverContentDropdownHeight = isRefObject(combinedRef)
-      ? `${combinedRef?.current?.clientHeight}px`
       : "200px";
 
     return (
