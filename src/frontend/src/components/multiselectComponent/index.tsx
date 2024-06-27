@@ -3,7 +3,7 @@
 import { cva, VariantProps } from "class-variance-authority";
 import isEqual from "lodash.isequal";
 import { CheckIcon, ChevronDown, XCircle, XIcon } from "lucide-react";
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 
 import useMergeRefs, {
   isRefObject,
@@ -28,33 +28,65 @@ import {
 } from "../ui/popover";
 import { Separator } from "../ui/separator";
 
+type MultiSelectValue = {
+  label: string;
+  value: string;
+};
+
+interface MultiSelectProps<T>
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "defaultValue">,
+    VariantProps<typeof multiSelectVariants> {
+  options: T[];
+  onValueChange: (value: T[]) => void;
+  defaultValue: T[];
+  placeholder?: string;
+  maxCount?: number;
+  asChild?: boolean;
+  className?: string;
+  editNode?: boolean;
+}
+
 const BadgeWrapper = ({
-    value
-    variant,
-    className,
-    animation,
-    option,
-    onClick,
- }: { value: MultiSelectValue }) => {
+  value,
+  variant,
+  className,
+  onDelete,
+}: {
+  value: MultiSelectValue;
+  variant: MultiSelectProps<MultiSelectValue>["variant"];
+  className: MultiSelectProps<MultiSelectValue>["className"];
+  onDelete: ({ value }: { value: MultiSelectValue }) => void;
+}) => {
+  const badgeRef = useRef<HTMLDivElement>(null);
+
+  const handleDelete = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    event.stopPropagation();
+    onDelete({ value });
+  };
+
   return (
     <Badge
-      key={selectedValue.value}
       className={cn(
         "rounded-sm p-0",
         multiSelectVariants({ variant, className }),
       )}
-      style={{ animationDuration: `${animation}s` }}
     >
-      <div id="content" className="p-1 pr-0">
-        {option?.label}
+      <div id="content" className="p-1 pr-0" ref={badgeRef}>
+        {value?.label}
       </div>
       <div id="spacer" className="p-1" />
-      <div id="delete" className="flex h-full items-center justify-center">
+      <div
+        id="delete"
+        className="flex items-center justify-center px-1 hover:bg-red-300/80"
+        style={{
+          minHeight: `${badgeRef?.current?.clientHeight}px`,
+        }}
+      >
         <XCircle
           className="h-4 min-h-4 w-4 min-w-4 cursor-pointer"
-          onClick={(event) => {
-            event.stopPropagation();
-            toggleOption(selectedValue);
+          onClick={handleDelete}
+          style={{
+            minHeight: `${badgeRef?.current?.clientHeight}px`,
           }}
         />
       </div>
@@ -79,25 +111,6 @@ const multiSelectVariants = cva("m-1 ", {
   },
 });
 
-type MultiSelectValue = {
-  label: string;
-  value: string;
-};
-
-interface MultiSelectProps<T>
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "defaultValue">,
-    VariantProps<typeof multiSelectVariants> {
-  options: T[];
-  onValueChange: (value: T[]) => void;
-  defaultValue: T[];
-  placeholder?: string;
-  animation?: number;
-  maxCount?: number;
-  asChild?: boolean;
-  className?: string;
-  editNode?: boolean;
-}
-
 export const MultiSelect = forwardRef<
   HTMLButtonElement,
   MultiSelectProps<MultiSelectValue>
@@ -109,7 +122,6 @@ export const MultiSelect = forwardRef<
       variant,
       defaultValue = [],
       placeholder = "Select options",
-      animation = 0,
       maxCount = 3,
       asChild = false,
       className,
@@ -144,7 +156,7 @@ export const MultiSelect = forwardRef<
       }
     };
 
-    const toggleOption = (value: MultiSelectValue) => {
+    const toggleOption = ({ value }: { value: MultiSelectValue }) => {
       const newSelectedValues = selectedValues.includes(value)
         ? selectedValues.filter((v) => v !== value)
         : [...selectedValues, value];
@@ -181,7 +193,11 @@ export const MultiSelect = forwardRef<
       editNode ? PopoverContent : PopoverContentWithoutPortal;
 
     const popoverContentDropdownMinWidth = isRefObject(combinedRef)
-      ? `${combinedRef?.current?.clientWidth}px` ?? "200px"
+      ? `${combinedRef?.current?.clientWidth}px`
+      : "200px";
+
+    const popoverContentDropdownHeight = isRefObject(combinedRef)
+      ? `${combinedRef?.current?.clientHeight}px`
       : "200px";
 
     return (
@@ -207,58 +223,45 @@ export const MultiSelect = forwardRef<
               <div className="flex w-full items-center justify-between">
                 <div className="flex flex-wrap items-center">
                   {selectedValues?.slice(0, maxCount).map((selectedValue) => {
-                    const option = options.find(
-                      (o) => o.value === selectedValue.value,
-                    );
                     return (
-                      <BadgeWrapper value={selectedValue} />
-                      //   <Badge
-                      //     key={selectedValue.value}
-                      //     className={cn(
-                      //       "rounded-sm p-0",
-                      //       multiSelectVariants({ variant, className }),
-                      //     )}
-                      //     style={{ animationDuration: `${animation}s` }}
-                      //   >
-                      //     <div id="content" className="p-1 pr-0">{option?.label}</div>
-                      //     <div id="spacer" className="p-1" />
-                      //     <div id="delete" className="h-full flex items-center justify-center">
-                      //       <XCircle
-                      //         className="h-4 min-h-4 w-4 min-w-4 cursor-pointer"
-                      //         onClick={(event) => {
-                      //           event.stopPropagation();
-                      //           toggleOption(selectedValue);
-                      //         }}
-                      //       />
-                      //     </div>
-                      //   </Badge>
+                      <BadgeWrapper
+                        value={selectedValue}
+                        onDelete={toggleOption}
+                        variant={variant}
+                        className={className}
+                        key={selectedValue.value}
+                      />
                     );
                   })}
-                  {/* {selectedValues?.length > maxCount ? (
+                  {selectedValues?.length > maxCount ? (
                     <Badge
                       className={cn(
                         "border-foreground/1 rounded-sm bg-transparent p-0 text-foreground hover:bg-transparent",
                         multiSelectVariants({ variant, className }),
                       )}
-                      style={{ animationDuration: `${animation}s` }}
                     >
-                      <div id="content" className="p-1 pr-0">{`+ ${selectedValues?.length - maxCount} more`}</div>
+                      <div
+                        id="content"
+                        className="p-1 pr-0"
+                      >{`+ ${selectedValues?.length - maxCount} more`}</div>
                       <div id="spacer" className="p-1" />
-                      <div id="delete" className="h-full flex items-center justify-center">
+                      <div
+                        id="delete"
+                        className="flex items-center justify-center px-1 hover:bg-red-300/80"
+                      >
                         <XCircle
                           className="h-4 min-h-4 w-4 min-w-4 cursor-pointer"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            clearExtraOptions();
-                          }}
+                          //   onClick={toggleOption}
                         />
                       </div>
                     </Badge>
-                  ) : null} */}
+                  ) : null}
                 </div>
-                <div className="flex items-center justify-between">
+                <div
+                  className="flex items-center justify-between"
+                >
                   <XIcon
-                    className="mx-2 h-4 cursor-pointer text-muted-foreground"
+                    className="mx-2 cursor-pointer text-muted-foreground"
                     onClick={(event) => {
                       event.stopPropagation();
                       handleClear();
@@ -328,7 +331,7 @@ export const MultiSelect = forwardRef<
                   return (
                     <CommandItem
                       key={option.value}
-                      onSelect={() => toggleOption(option)}
+                      onSelect={() => toggleOption({ value: option })}
                       className="cursor-pointer"
                     >
                       <div

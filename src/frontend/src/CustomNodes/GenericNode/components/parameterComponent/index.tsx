@@ -588,7 +588,8 @@ export default function ParameterComponent({
               id={"multiselect-" + name}
               onValueChange={handleOnNewValue}
               defaultValue={[{ value: "react", label: "This is an extra extra extra long label This is an extra extra extra long label" },  { value: "angular", label: "Angular" },
-                { value: "vue", label: "Vue" },]}
+                { value: "vue", label: "Vue" },  { value: "svelte", label: "Svelte" },
+                { value: "ember", label: "Ember" },]}
             />
             {/* <div className="flex-1">
               <Dropdown
