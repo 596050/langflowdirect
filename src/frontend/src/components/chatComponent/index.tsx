@@ -78,6 +78,7 @@ export default function FlowToolbar(): JSX.Element {
               ? "button-disable text-muted-foreground"
               : "",
           )}
+          data-testid="shared-button-flow"
         >
           <ForwardedIconComponent
             name="Share3"
