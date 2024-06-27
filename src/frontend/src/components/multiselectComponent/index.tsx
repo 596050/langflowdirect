@@ -42,7 +42,7 @@ const MultiSelectBadgeWrapper = ({
 }) => {
   const badgeRef = useRef<HTMLDivElement>(null);
 
-  const handleDelete = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+  const handleDelete = (event: React.MouseEvent<SVGSVGElement | HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
     onDelete({ value });
   };
@@ -64,10 +64,10 @@ const MultiSelectBadgeWrapper = ({
         style={{
           minHeight: `${badgeRef?.current?.clientHeight}px`,
         }}
+        onClick={handleDelete}
       >
         <XCircle
           className="h-4 min-h-4 w-4 min-w-4 cursor-pointer"
-          onClick={handleDelete}
           style={{
             minHeight: `${badgeRef?.current?.clientHeight}px`,
           }}
