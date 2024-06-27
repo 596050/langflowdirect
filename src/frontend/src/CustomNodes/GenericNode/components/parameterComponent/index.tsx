@@ -578,11 +578,11 @@ export default function ParameterComponent({
             <MultiSelect
               disabled={disabled}
               options={[
-                { value: "react", label: "This is an extra extra extra long label This is an extra extra extra long label" },
-                { value: "angular", label: "Angular" },
-                { value: "vue", label: "Vue" },
-                { value: "svelte", label: "Svelte" },
-                { value: "ember", label: "Ember" },
+                { value: "option_1", label: "This is an extra extra extra long label to shsow responsiveness of the component" },
+                { value: "option_2", label: "Option A" },
+                { value: "option_3", label: "Option B" },
+                { value: "option_4", label: "Option C" },
+                { value: "option_5", label: "Option D" },
               ]}
               value={data?.node?.template?.[name]?.value || []}
               id={"multiselect-" + name}
