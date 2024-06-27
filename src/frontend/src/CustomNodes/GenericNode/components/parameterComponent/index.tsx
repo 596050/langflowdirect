@@ -179,6 +179,7 @@ export default function ParameterComponent({
     newValue: string | string[] | boolean | Object[],
     skipSnapshot: boolean | undefined = false,
   ): Promise<void> => {
+    console.log('===  index.tsx [182] ===', newValue, skipSnapshot);
     handleOnNewValueHook(newValue, skipSnapshot);
   };
 
@@ -575,20 +576,19 @@ export default function ParameterComponent({
           <div className="mt-2 flex w-full items-center gap-2">
             <MultiSelect
               disabled={disabled}
+              maxCount={3}
               options={[
-                { value: "react", label: "React", icon: Turtle },
-                { value: "angular", label: "Angular", icon: Cat },
-                { value: "vue", label: "Vue", icon: Dog },
-                { value: "svelte", label: "Svelte", icon: Rabbit },
-                { value: "ember", label: "Ember", icon: Fish },
+                { value: "react", label: "This is an extra extra extra long label This is an extra extra extra long label" },
+                { value: "angular", label: "Angular" },
+                { value: "vue", label: "Vue" },
+                { value: "svelte", label: "Svelte" },
+                { value: "ember", label: "Ember" },
               ]}
-              onSelect={handleOnNewValue}
               value={data?.node?.template?.[name]?.value}
               id={"multiselect-" + name}
-              onValueChange={function (value: string[]): void {
-                throw new Error("Function not implemented.");
-              }}
-              defaultValue={[]}
+              onValueChange={handleOnNewValue}
+              defaultValue={[{ value: "react", label: "This is an extra extra extra long label This is an extra extra extra long label" },  { value: "angular", label: "Angular" },
+                { value: "vue", label: "Vue" },]}
             />
             {/* <div className="flex-1">
               <Dropdown
