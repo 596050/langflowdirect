@@ -188,6 +188,7 @@ ifdef login
 		--port $(port) \
 		--reload \
 		--env-file $(env) \
+		--log-level debug \
 		--loop asyncio \
 		--workers $(workers)
 else
@@ -198,6 +199,7 @@ else
 		--port $(port) \
 		--reload \
 		--env-file $(env) \
+		--log-level debug \
 		--loop asyncio \
 		--workers $(workers)
 endif

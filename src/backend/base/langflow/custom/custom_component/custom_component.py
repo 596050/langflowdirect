@@ -468,6 +468,14 @@ class CustomComponent(BaseComponent):
         except Exception as e:
             raise ValueError(f"Error listing flows: {e}")
 
+    def list_components(self, flow_name) -> List[Data]:
+        flow_data = self.get_flow(flow_name)
+        if not flow_data:
+            return []
+        graph = Graph.from_payload(flow_data.data["data"])
+        inputs = graph.inputs
+        return inputs
+
     def build(self, *args: Any, **kwargs: Any) -> Any:
         """
         Builds the custom component.

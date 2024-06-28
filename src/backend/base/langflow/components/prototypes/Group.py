@@ -14,7 +14,7 @@ from langflow.schema.dotdict import dotdict
 class GroupToolComponent(CustomComponent):
     display_name = "Group"
     description = "Construct a Tool from a function that runs the loaded Flow."
-    field_order = ["flow_name", "name", "description", "child_nodes", "return_direct"]
+    field_order = ["flow_name", "name", "description", "child_nodes", "bob", "return_direct"]
     trace_type = "tool"
     beta = True
 
@@ -22,6 +22,7 @@ class GroupToolComponent(CustomComponent):
         flow_datas = self.list_flows()
         return [flow_data.data["name"] for flow_data in flow_datas]
 
+    # def get_flow_nodes(self, flow_name: str) -> List[ChildNode]:
     def get_flow_nodes(self, flow_name: str) -> List[ChildNode]:
         flow_data = self.get_flow(flow_name)
         if not flow_data:
@@ -29,6 +30,7 @@ class GroupToolComponent(CustomComponent):
         graph = Graph.from_payload(flow_data.data["data"])
         inputs = get_flow_inputs(graph)
         return [ChildNode(name=vertex.name, description=vertex.description) for vertex in inputs]
+        # return [ChildNode(name="name", description="description")]
 
     def get_flow(self, flow_name: str) -> Optional[Data]:
         """
@@ -52,7 +54,11 @@ class GroupToolComponent(CustomComponent):
             build_config["flow_name"]["options"] = self.get_flow_names()
 
         if field_name == "child_nodes":
-            build_config["child_nodes"]["nodes"] = self.get_flow_nodes(field_value)
+            build_config["child_nodes"]["options"] = self.get_flow_nodes(field_value)
+            # self.get_flow_nodes(field_value)
+
+        if field_name == "bob":
+            build_config["bob"]["value"] = "bob value"
 
         return build_config
 
@@ -72,7 +78,14 @@ class GroupToolComponent(CustomComponent):
             "child_nodes": {
                 "display_name": "Child Components",
                 "description": "",
-                "nodes": []
+                # "nodes": [],
+                "options": [],
+                "real_time_refresh": True,
+            },
+            "bob": {
+                "display_name": "BOB",
+                "description": "BOB DESCRIPTION",
+                "value": "",
             },
             "description": {
                 "display_name": "Description",
@@ -85,24 +98,31 @@ class GroupToolComponent(CustomComponent):
             },
         }
 
-    async def build(self, flow_name: str, name: str, description: str, child_nodes: List[ChildNode], return_direct: bool = False) -> Tool:
-        GroupTool.update_forward_refs()
+    # async def build(self, flow_name: str, name: str, description: str, child_nodes: List[ChildNode], return_direct: bool = False) -> Tool:
+    async def build(self, flow_name: str, name: str, description: str, child_nodes: List[ChildNode], bob:str, return_direct: bool = False) -> List[Data]:
+        print("Building GroupTool", child_nodes)
+
+        # GroupTool.update_forward_refs()
         flow_data = self.get_flow(flow_name)
         if not flow_data:
             raise ValueError("Flow not found.")
-        graph = Graph.from_payload(flow_data.data["data"])
-        inputs = get_flow_inputs(graph)
-        tool = GroupTool(
-            name=name,
-            description=description,
-            graph=graph,
-            child_nodes=child_nodes,
-            return_direct=return_direct,
-            inputs=inputs,
-            flow_id=str(flow_data.id),
-            user_id=str(self._user_id),
-        )
-        description_repr = repr(tool.description).strip("'")
-        args_str = "\n".join([f"- {arg_name}: {arg_data['description']}" for arg_name, arg_data in tool.args.items()])
-        self.status = f"{description_repr}\nArguments:\n{args_str}"
-        return tool  # type: ignore
+        # graph = Graph.from_payload(flow_data.data["data"])
+        # inputs = get_flow_inputs(graph)
+        # tool = GroupTool(
+        #     name=name,
+        #     description=description,
+        #     graph=graph,
+        #     bob=bob,
+        #     # child_nodes=child_nodes,
+        #     return_direct=return_direct,
+        #     inputs=inputs,
+        #     flow_id=str(flow_data.id),
+        #     user_id=str(self._user_id),
+        # )
+
+        # description_repr = repr(tool.description).strip("'")
+        # args_str = "\n".join([f"- {arg_name}: {arg_data['description']}" for arg_name, arg_data in tool.args.items()])
+        # self.status = f"{description_repr}\nArguments:\n{args_str}"
+        # return tool  # type: ignore
+        print(flow_data)
+        return [flow_data]

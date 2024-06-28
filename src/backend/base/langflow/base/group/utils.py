@@ -13,8 +13,11 @@ from langflow.graph.vertex.base import Vertex
 from langflow.helpers.flow import build_schema_from_inputs, get_arg_names, get_flow_inputs, run_flow
 
 
-class ChildNode(CustomComponent):
-    parent: Optional["GroupTool"] = None
+# (Graph)
+class ChildNode:
+    def __init__(self, name: str, description: str):
+        self.name = name
+        self.description = description
 
 class GroupTool(BaseTool):
     name: str
@@ -22,9 +25,9 @@ class GroupTool(BaseTool):
     graph: Optional[Graph] = None
     flow_id: Optional[str] = None
     user_id: Optional[str] = None
-    child_nodes: List[ChildNode] = []
     inputs: List["Vertex"] = []
     get_final_results_only: bool = True
+    bob: str = "bob"
 
     @property
     def args(self) -> dict:
