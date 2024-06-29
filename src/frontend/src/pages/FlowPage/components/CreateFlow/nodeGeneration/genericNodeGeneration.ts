@@ -296,7 +296,7 @@ export function convertMermaidToReactFlow(event: MermaidParserEvent) {
     edges: edges,
     viewport: { x: 0, y: 0, zoom: 1 }, // Default viewport settings
   }
-  console.log('===  genericNodeGeneration.ts [194] ===', resultflow);
+  // console.log('===  genericNodeGeneration.ts [194] ===', resultflow);
   return resultflow
 }
 

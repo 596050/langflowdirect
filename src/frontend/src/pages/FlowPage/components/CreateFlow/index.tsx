@@ -1,31 +1,25 @@
 import {
-  Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "../../../../components/ui/drawer";
 
 import { useEffect, useRef, useState } from "react";
 
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Paperclip } from "lucide-react";
-import useIncrementTimeout from "../../../../CustomNodes/hooks/use-increment-timeout";
 import useScrollToRef from "../../../../CustomNodes/hooks/use-scroll-to-ref";
 import useTypingEffect from "../../../../CustomNodes/hooks/use-typing-effect";
-import ForwardedIconComponent from "../../../../components/genericIconComponent";
-import { Badge } from "../../../../components/ui/badge";
-import { Button } from "../../../../components/ui/button";
 import { cn } from "../../../../utils/utils";
-import Flicker from "./Flicker.svg";
 
 // Create a due diligence flow for company A purchasing company B
+const defaultModelResponse =
+  "Describe the problem you are facing and generate a flow to help you solve it.";
 
 export const CreateFlowSlide = () => {
   const [message, setMessage] = useState("");
+  const [modelResponse, setModelResponse] = useState(defaultModelResponse);
   const [isSendButtonDisabled, setIsSendButtonDisabled] = useState(true);
   const textareaRef = useRef(null);
 
@@ -33,6 +27,9 @@ export const CreateFlowSlide = () => {
     const value = event.target.value;
     setMessage(value);
     setIsSendButtonDisabled(value.trim() === "");
+    if (value.trim() === "") {
+      setModelResponse(defaultModelResponse);
+    }
   };
 
   useEffect(() => {
@@ -59,26 +56,43 @@ export const CreateFlowSlide = () => {
 
   const handleSendClick = () => {
     // Implement send message functionality here
-    console.log("Message sent: ", message);
+    // console.log("Message sent: ", message);
+    if (
+      message
+        .trim()
+        .toLowerCase()
+        .indexOf("due diligence".trim().toLowerCase()) !== -1
+    ) {
+      setModelResponse(
+        `Create a due diligence flow for company A purchasing company B`,
+      );
+      return;
+    }
+    setModelResponse(defaultModelResponse);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSendClick();
+    }
   };
 
   const responsePanelRef = useRef(null);
 
-  const modelResponse =
-    "Describe the problem you are facing and generate a flow to help you solve it.";
+  // const modelResponse =
+  //   "Describe the problem you are facing and generate a flow to help you solve it.";
 
   const { text: modelMessage, isAnimating } = useTypingEffect(modelResponse);
   // const { count } = useIncrementTimeout(isLoading, loaderElements.length);
 
   useScrollToRef(responsePanelRef, modelMessage.length, 2);
 
-  // console.log("===  index.tsx [32] ===", textareaRef.current);
-
   return (
     <DrawerContent className="left-[20%] bg-muted px-2 pb-2">
-      <DrawerHeader className="flex justify-between !py-0">
+      <DrawerHeader className="flex justify-between !py-0 !px-2 pb-4">
         <div>
-          <DrawerTitle>Describe the problem and generate a flow</DrawerTitle>
+          <DrawerTitle className="text-gray-700 dark:text-gray-300">Generate a flow</DrawerTitle>
         </div>
         <div className="flex items-center justify-end">
           <DrawerClose className="rounded-sm !p-0 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
@@ -92,52 +106,43 @@ export const CreateFlowSlide = () => {
           <DrawerDescription>This action cannot be undone.</DrawerDescription> */}
       </DrawerHeader>
       <div className="flex h-full w-full items-center justify-between">
-        {/* min-h-[50vh] */}
         <div className="relative flex h-full w-full flex-col rounded-xl bg-white p-0 lg:col-span-2">
-          {/* <Badge variant="outline" className="absolute right-3 top-3">
-              Output
-            </Badge> */}
-
-          {/* <p ref={responsePanelRef} className="h-full min-h-10 flex-wrap whitespace-normal text-wrap text-center text-gray-500">
-            Describe the problem you are facing and generate a flow to help you
-            solve it.
-          </p> */}
-
-          <div className="border-border-default shadow-sectionInput my-2 flex min-h-[50px] w-full flex-col justify-center rounded-md border p-4 leading-6 sm:p-2">
+          <div className="border-border-default shadow-sectionInput my-2 flex min-h-[50px] w-full flex-col justify-center rounded-md border-transparent p-4 leading-6 sm:p-2">
             <span className="whitespace-pre-line sm:text-sm">
               {/* {isLoading ? <Loader count={count} /> : modelMessage}
                */}
-              <p className="flex h-full flex-row flex-wrap justify-start whitespace-normal text-wrap text-center text-gray-500">
-                {modelMessage}
+              <p
+                className={cn(
+                  "flex h-full flex-row flex-wrap justify-start whitespace-normal text-wrap text-center text-gray-500",
+                  // {
+                  //   "justify-center": isAnimating && modelResponse == modelMessage,
+                  // }
+                )}
+              >
+                <span className="pr-1">{modelMessage}</span>
                 {
                   <span
                     className={cn(`animate-flicker inline-block`, {
                       hidden: !isAnimating,
                     })}
                   >
-                    <img
+                    {/* <img
                       src={Flicker}
                       alt="flicker"
                       className="animate-flicker inline-block w-[8px]"
-                    />
+                    /> */}
+                    <span className="animate-flicker inline-block">|</span>
                   </span>
                 }
-                {/* {isAnimating && (
-                <img
-                  src={Flicker}
-                  alt="flicker"
-                  className="animate-flicker inline-block w-[5px]"
-                />
-              )} */}
               </p>
             </span>
           </div>
 
           <div ref={responsePanelRef} />
 
-          <div className="flex-1" />
+          <div className="flex-1 pb-4" />
           <form
-            className="w-full"
+            className="w-full dark:bg-muted"
             aria-haspopup="dialog"
             aria-expanded="false"
             aria-controls="radix-:r55:"
@@ -147,11 +152,11 @@ export const CreateFlowSlide = () => {
             <div className="relative flex h-full max-w-full flex-1 flex-col">
               <div className="absolute bottom-full left-0 right-0 z-20"></div>
               <div className="flex w-full items-center">
-                <div className="dark:bg-token-main-surface-secondary flex w-full flex-col gap-1.5 rounded-[26px] border border-black bg-[#f4f4f4] p-1.5 transition-colors">
+                <div className="flex w-full flex-col gap-1.5 rounded-[26px] border border-black bg-[#f4f4f4] p-1.5 transition-colors dark:bg-muted">
                   <div className="flex h-full flex-row items-end justify-center gap-1.5 md:gap-2">
                     <div
                       className={
-                        "flex h-full flex-col items-center justify-center p-1"
+                        "flex h-full flex-col items-center justify-center p-1 dark:bg-muted"
                       }
                     >
                       <div className="flex h-full flex-col items-center justify-center">
@@ -184,22 +189,23 @@ export const CreateFlowSlide = () => {
                         ></div>
                       </div>
                     </div>
-                    <div className="flex min-w-0 flex-1 flex-col py-1">
+                    <div className="flex min-w-0 flex-1 flex-col py-1 dark:bg-muted">
                       <textarea
                         id="prompt-textarea"
                         tabIndex={0}
                         dir="auto"
                         rows={1}
                         placeholder="Enter prompt and generate"
-                        className="text-token-text-primary m-0 max-h-52 max-h-[25dvh] resize-none border-0 bg-transparent px-0 outline-none ring-transparent focus:ring-0 focus-visible:ring-0"
+                        className="text-token-text-primary m-0 max-h-52 max-h-[25dvh] resize-none border-0 bg-transparent px-0 outline-none ring-transparent focus:ring-0 focus-visible:ring-0 dark:bg-muted"
                         value={message}
                         onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
                         ref={textareaRef}
                       ></textarea>
                     </div>
                     <button
                       data-testid="fruitjuice-send-button"
-                      className="disabled:dark:bg-token-text-quaternary dark:disabled:text-token-main-surface-secondary flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-colors hover:opacity-70 focus-visible:outline-none focus-visible:outline-black disabled:bg-[#D7D7D7] disabled:text-[#f4f4f4] disabled:hover:opacity-100 dark:bg-white dark:text-black dark:focus-visible:outline-white"
+                      className="disabled:dark:bg-token-text-quaternary dark:disabled:text-token-main-surface-secondary flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-colors hover:opacity-70 focus-visible:outline-none focus-visible:outline-black disabled:bg-[#D7D7D7] disabled:text-[#f4f4f4] disabled:hover:opacity-100 dark:border-2 dark:border-solid dark:border-[#f4f4f4] dark:bg-white dark:text-black dark:hover:bg-muted dark:focus-visible:outline-white"
                       disabled={isSendButtonDisabled}
                       onClick={handleSendClick}
                     >

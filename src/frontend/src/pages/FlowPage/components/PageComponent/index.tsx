@@ -137,7 +137,7 @@ const useMermaidConversion = ({
     const translatedToGenericNodes = convertMermaidToReactFlow(
       event
     );
-    console.log("===  index.tsx [137] ===", translatedToGenericNodes);
+    // console.log("===  index.tsx [137] ===", translatedToGenericNodes);
     // const reactflowEdges: Edge[] = event.edges.map(
     //     (mermaidEdge: IMermaidEdgeDefinition) =>
     //       {
@@ -551,8 +551,6 @@ export default function Page({
             id: newId,
           },
         };
-
-        console.log('===  index.tsx [529] ===', JSON.stringify({ nodes: [newNode], edges: [] }));
 
         paste(
           { nodes: [newNode], edges: [] },

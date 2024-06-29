@@ -250,7 +250,7 @@ export default function ParameterComponent({
     }
   }, [disabledOutput]);
 
-  console.log('===  index.tsx [254] ===', nodes);
+  // console.log('===  index.tsx [254] ===', nodes);
 
   return !showNode ? (
     left && LANGFLOW_SUPPORTED_TYPES.has(type ?? "") && !optionalHandle ? (

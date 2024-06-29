@@ -23,6 +23,7 @@ import { Message } from "../../types/messages";
 import { StoreComponentResponse } from "../../types/store";
 import { FlowPoolType } from "../../types/zustand/flow";
 import { extractColumnsFromRows } from "../../utils/utils";
+import AllResponse from "../mock_responses/all.json";
 import {
   APIClassType,
   BuildStatusTypeAPI,
@@ -38,10 +39,18 @@ import {
  * @param {boolean} force_refresh - Whether to force a refresh of the data.
  * @returns {Promise<AxiosResponse<APIObjectType>>} A promise that resolves to an AxiosResponse containing all the objects.
  */
+// export async function getAll(
+//   force_refresh: boolean = true,
+// ): Promise<AxiosResponse<APIObjectType>> {
+//   return await api.get(`${BASE_URL_API}all?force_refresh=${force_refresh}`);
+// }
 export async function getAll(
   force_refresh: boolean = true,
 ): Promise<AxiosResponse<APIObjectType>> {
-  return await api.get(`${BASE_URL_API}all?force_refresh=${force_refresh}`);
+  return new Promise((resolve, reject) => {
+    // @ts-ignore
+    resolve({ data: AllResponse });
+  });
 }
 
 const GITHUB_API_URL = "https://api.github.com";
