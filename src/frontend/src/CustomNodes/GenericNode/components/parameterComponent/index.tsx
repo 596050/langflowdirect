@@ -178,7 +178,6 @@ export default function ParameterComponent({
     newValue: string | string[] | boolean | Object[],
     skipSnapshot: boolean | undefined = false,
   ): Promise<void> => {
-    console.log('===  index.tsx [182] ===', newValue, skipSnapshot);
     handleOnNewValueHook(newValue, skipSnapshot);
   };
 
@@ -251,7 +250,7 @@ export default function ParameterComponent({
     }
   }, [disabledOutput]);
 
-  console.log('===  index.tsx [254] ===',name, data?.node);
+  console.log('===  index.tsx [254] ===', nodes);
 
   return !showNode ? (
     left && LANGFLOW_SUPPORTED_TYPES.has(type ?? "") && !optionalHandle ? (

@@ -13,9 +13,14 @@ import { useEffect, useRef, useState } from "react";
 
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Paperclip } from "lucide-react";
+import useIncrementTimeout from "../../../../CustomNodes/hooks/use-increment-timeout";
+import useScrollToRef from "../../../../CustomNodes/hooks/use-scroll-to-ref";
+import useTypingEffect from "../../../../CustomNodes/hooks/use-typing-effect";
 import ForwardedIconComponent from "../../../../components/genericIconComponent";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
+import { cn } from "../../../../utils/utils";
+import Flicker from "./Flicker.svg";
 
 // Create a due diligence flow for company A purchasing company B
 
@@ -57,6 +62,16 @@ export const CreateFlowSlide = () => {
     console.log("Message sent: ", message);
   };
 
+  const responsePanelRef = useRef(null);
+
+  const modelResponse =
+    "Describe the problem you are facing and generate a flow to help you solve it.";
+
+  const { text: modelMessage, isAnimating } = useTypingEffect(modelResponse);
+  // const { count } = useIncrementTimeout(isLoading, loaderElements.length);
+
+  useScrollToRef(responsePanelRef, modelMessage.length, 2);
+
   // console.log("===  index.tsx [32] ===", textareaRef.current);
 
   return (
@@ -78,14 +93,47 @@ export const CreateFlowSlide = () => {
       </DrawerHeader>
       <div className="flex h-full w-full items-center justify-between">
         {/* min-h-[50vh] */}
-        <div className="relative flex h-full w-full flex-col rounded-xl bg-white p-0 pt-4 lg:col-span-2">
+        <div className="relative flex h-full w-full flex-col rounded-xl bg-white p-0 lg:col-span-2">
           {/* <Badge variant="outline" className="absolute right-3 top-3">
               Output
             </Badge> */}
-          <p className="h-full min-h-10 flex-wrap whitespace-normal text-wrap text-center text-gray-500">
+
+          {/* <p ref={responsePanelRef} className="h-full min-h-10 flex-wrap whitespace-normal text-wrap text-center text-gray-500">
             Describe the problem you are facing and generate a flow to help you
             solve it.
-          </p>
+          </p> */}
+
+          <div className="border-border-default shadow-sectionInput my-2 flex min-h-[50px] w-full flex-col justify-center rounded-md border p-4 leading-6 sm:p-2">
+            <span className="whitespace-pre-line sm:text-sm">
+              {/* {isLoading ? <Loader count={count} /> : modelMessage}
+               */}
+              <p className="flex h-full flex-row flex-wrap justify-start whitespace-normal text-wrap text-center text-gray-500">
+                {modelMessage}
+                {
+                  <span
+                    className={cn(`animate-flicker inline-block`, {
+                      hidden: !isAnimating,
+                    })}
+                  >
+                    <img
+                      src={Flicker}
+                      alt="flicker"
+                      className="animate-flicker inline-block w-[8px]"
+                    />
+                  </span>
+                }
+                {/* {isAnimating && (
+                <img
+                  src={Flicker}
+                  alt="flicker"
+                  className="animate-flicker inline-block w-[5px]"
+                />
+              )} */}
+              </p>
+            </span>
+          </div>
+
+          <div ref={responsePanelRef} />
 
           <div className="flex-1" />
           <form
@@ -182,6 +230,4 @@ export const CreateFlowSlide = () => {
   );
 };
 
-
-
-export default CreateFlowSlide
+export default CreateFlowSlide;

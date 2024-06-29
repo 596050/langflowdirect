@@ -136,9 +136,6 @@ export const MultiSelect = forwardRef<
 
     const combinedRef = useMergeRefs<HTMLButtonElement>(ref);
 
-    console.log("===  index.tsx [133] ===", options);
-    console.log("===  index.tsx [134] ===", value);
-
     useEffect(() => {
       if (!isEqual(selectedValues, value) && !!value && value?.length > 0) {
         setSelectedValues(value);
