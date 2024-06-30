@@ -12,6 +12,7 @@ import { Paperclip } from "lucide-react";
 import useScrollToRef from "../../../../CustomNodes/hooks/use-scroll-to-ref";
 import useTypingEffect from "../../../../CustomNodes/hooks/use-typing-effect";
 import { cn } from "../../../../utils/utils";
+import { dueDiligenceFlow } from "./exampleDueDiligenceFlow";
 
 // Create a due diligence flow for company A purchasing company B
 const defaultModelResponse =
@@ -64,7 +65,7 @@ export const CreateFlowSlide = () => {
         .indexOf("due diligence".trim().toLowerCase()) !== -1
     ) {
       setModelResponse(
-        `Create a due diligence flow for company A purchasing company B`,
+        `<code><pre>${JSON.stringify(dueDiligenceFlow, null, 2)}</pre></code>`
       );
       return;
     }
@@ -84,12 +85,13 @@ export const CreateFlowSlide = () => {
   //   "Describe the problem you are facing and generate a flow to help you solve it.";
 
   const { text: modelMessage, isAnimating } = useTypingEffect(modelResponse);
+  // const { textRef: modelMessage, isAnimatingRef } = useTypingEffect(modelResponse);
   // const { count } = useIncrementTimeout(isLoading, loaderElements.length);
 
-  useScrollToRef(responsePanelRef, modelMessage.length, 2);
+  useScrollToRef(responsePanelRef,  modelMessage?.length, 2);
 
   return (
-    <DrawerContent className="left-[20%] bg-muted px-2 pb-2">
+    <DrawerContent className="left-[20%] bg-muted px-2 pb-2 max-h-full overflow-y-auto max-w-full">
       <DrawerHeader className="flex justify-between !py-0 !px-2 pb-4">
         <div>
           <DrawerTitle className="text-gray-700 dark:text-gray-300">Generate a flow</DrawerTitle>
@@ -113,27 +115,27 @@ export const CreateFlowSlide = () => {
                */}
               <p
                 className={cn(
-                  "flex h-full flex-row flex-wrap justify-start whitespace-normal text-wrap text-center text-gray-500",
+                  "flex h-full flex-row flex-wrap justify-start whitespace-normal text-wrap text-gray-500",
                   // {
                   //   "justify-center": isAnimating && modelResponse == modelMessage,
                   // }
                 )}
               >
-                <span className="pr-1">{modelMessage}</span>
-                {
+                <span className="pr-1 w-full max-w-full whitespace-normal" dangerouslySetInnerHTML={{ __html: modelMessage }}></span>
+                {/* {
                   <span
                     className={cn(`animate-flicker inline-block`, {
                       hidden: !isAnimating,
                     })}
-                  >
+                  > */}
                     {/* <img
                       src={Flicker}
                       alt="flicker"
                       className="animate-flicker inline-block w-[8px]"
                     /> */}
-                    <span className="animate-flicker inline-block">|</span>
+                    {/* <span className="animate-flicker inline-block">|</span>
                   </span>
-                }
+                } */}
               </p>
             </span>
           </div>

@@ -92,8 +92,8 @@ export function cleanEdges(nodes: NodeType[], edges: Edge[]) {
           output_types: outputTypes,
           dataType: sourceNode.data.type,
         };
-        console.log("id", id);
-        console.log("parsedSourceHandle", parsedSourceHandle);
+        // console.log("id", id);
+        // console.log("parsedSourceHandle", parsedSourceHandle);
         if (scapedJSONStringfy(id) !== sourceHandle) {
           newEdges = newEdges.filter((e) => e.id !== edge.id);
         }

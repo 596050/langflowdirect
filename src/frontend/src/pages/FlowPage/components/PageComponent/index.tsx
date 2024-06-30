@@ -535,6 +535,7 @@ export default function Page({
       if (event.dataTransfer.types.some((types) => types === "nodedata")) {
         takeSnapshot();
 
+        console.log('===  index.tsx [555] ===', event.dataTransfer.getData("nodedata"));
         // Extract the data from the drag event and parse it as a JSON object
         const data: { type: string; node?: APIClassType } = JSON.parse(
           event.dataTransfer.getData("nodedata"),
@@ -551,6 +552,8 @@ export default function Page({
             id: newId,
           },
         };
+
+        console.log('===  index.tsx [555] ===', newNode);
 
         paste(
           { nodes: [newNode], edges: [] },
@@ -661,6 +664,8 @@ export default function Page({
   //   viewport: flow?.data?.viewport ?? { zoom: 1, x: 0, y: 0 },
   // });
 
+  console.log('===  index.tsx [667] ===', nodeTypes);
+
   return (
     <div className="h-full w-full" ref={reactFlowWrapper}>
       {showCanvas ? (
@@ -703,7 +708,7 @@ export default function Page({
           >
             <Background className="" />
             {!view && (
-              <Controls className="fill-foreground stroke-foreground text-primary [&>button]:border-b-border [&>button]:bg-muted hover:[&>button]:bg-border"></Controls>
+              <Controls className="fill-foreground stroke-foreground text-primary [&>button]:border-b-border [&>button]:bg-muted hover:[&>button]:bg-border"/>
             )}
             <SelectionMenu
               lastSelection={lastSelection}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const useTypingEffect = (value: string) => {
   const [text, setText] = useState('');
@@ -31,5 +31,36 @@ const useTypingEffect = (value: string) => {
 
   return { text, isAnimating };
 };
+
+
+
+// const useTypingEffect = (value) => {
+//   const textRef = useRef('');
+//   const isAnimatingRef = useRef(true);
+
+//   useEffect(() => {
+//     let i = 0;
+//     textRef.current = '';
+//     isAnimatingRef.current = true;
+
+//     const intervalId = setInterval(() => {
+//       if (i === value.length) {
+//         clearInterval(intervalId);
+//         setTimeout(() => {
+//           isAnimatingRef.current = false;
+//         }, 100);
+//       } else {
+//         textRef.current += value[i++];
+//       }
+//     }, 10);
+
+//     return () => {
+//       clearInterval(intervalId);
+//     };
+//   }, [value]);
+
+//   return { textRef, isAnimatingRef };
+// };
+
 
 export default useTypingEffect;
